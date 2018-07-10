@@ -7,7 +7,7 @@ libProcessing is a C++ library for Processing.
 * Qt 5
 
 ## Usage
-Please see [libProcessingTemplate](# "libProcessingTemplate").
+Please see [libProcessingTemplate](https://github.com/gh-code/libProcessingTemplate "libProcessingTemplate").
 
 ## Reference
 WARNING: This is a starting project and most of the APIs are not supported yet or partially implemented. Some API interfaces are C/C++ specific because of the language limitations.
