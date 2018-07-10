@@ -1,0 +1,12 @@
+/**
+ * Processing
+ *
+ * Author: Gary Huang <gh.nctu+code@gmail.com>
+ */
+#ifndef PROCESSING
+#define PROCESSING
+
+#include "processing.h"
+#include "mouse.h"
+
+#endif // PROCESSING
