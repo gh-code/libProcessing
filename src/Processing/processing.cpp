@@ -61,6 +61,8 @@ public:
         // TODO: calculate frame rate
         PROCESSING_NAMESPACE::frameRate = frameRate;
     }
+
+    inline void arc(float a, float b, float c, float d, float start, float stop, ArcMode mode=OPEN_PIE) { canvas->arc(a, b, c, d, start, stop, mode); }
     inline void ellipse(float a, float b, float c, float d) { canvas->ellipse(a, b, c, d); }
     inline void line(float x1, float y1, float x2, float y2) { canvas->line(x1, y1, x2, y2); }
     inline void point(float x, float y) { canvas->point(x, y); }
@@ -78,6 +80,7 @@ public:
     inline void stroke(int v1, int v2, int v3, int alpha=255) { canvas->stroke(v1, v2, v3, alpha); }
     inline void noStroke() { canvas->noStroke(); }
 
+    inline void ellipseMode(EllipseMode mode) { canvas->ellipseMode(mode); }
     inline void strokeWeight(int weight) { canvas->strokeWeight(weight); }
 
     inline void rotate(float angle) { canvas->rotate(angle); }
@@ -123,6 +126,7 @@ int ProcessingPrivate::exec(int argc, char *argv[])
     window = engine->createWindow();
     window->setWindowTitle(title);
     canvas = window->createCanvas(renderer);
+    canvas->stroke(0);
     canvas->fill(255);
 
     if (callbacks["setup"])
@@ -201,6 +205,11 @@ void setFrameRate(int fps)
     ProcessingPrivate::getInstance()->setFrameRate(fps);
 }
 
+void arc(float a, float b, float c, float d, float start, float stop, ArcMode mode)
+{
+    ProcessingPrivate::getInstance()->arc(a, b, c, d, start, stop, mode);
+}
+
 void ellipse(float a, float b, float c, float d)
 {
     ProcessingPrivate::getInstance()->ellipse(a, b, c, d);
@@ -274,6 +283,11 @@ void stroke(int v1, int v2, int v3, int alpha)
 void noStroke()
 {
     ProcessingPrivate::getInstance()->noStroke();
+}
+
+void ellipseMode(EllipseMode mode)
+{
+    ProcessingPrivate::getInstance()->ellipseMode(mode);
 }
 
 void strokeWeight(int weight)

@@ -40,6 +40,7 @@ protected:
 protected:
     QBrush brush;
     QPen pen;
+    EllipseMode ellipse_mode;
 };
 
 PROCESSING_END_NAMESPACE

@@ -118,6 +118,11 @@ void Canvas::popStyle()
     draw_queue.push_back(new PPopStyle);
 }
 
+void Canvas::arc(float a, float b, float c, float d, float start, float stop, ArcMode mode)
+{
+    draw_queue.push_back(new PArc(a, b, c, d, start, stop, mode));
+}
+
 void Canvas::ellipse(float a, float b, float c, float d)
 {
     draw_queue.push_back(new PEllipse(a, b, c, d));
@@ -186,6 +191,11 @@ void Canvas::stroke(int v1, int v2, int v3, int alpha)
 void Canvas::noStroke()
 {
     draw_queue.push_back(new PNoStroke);
+}
+
+void Canvas::ellipseMode(EllipseMode mode)
+{
+    draw_queue.push_back(new PEllipseMode(mode));
 }
 
 void Canvas::strokeWeight(int weight)

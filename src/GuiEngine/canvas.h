@@ -36,6 +36,7 @@ public:
     void pushStyle();
     void popStyle();
 
+    void arc(float a, float b, float c, float d, float start, float stop, ArcMode mode=OPEN_PIE);
     void ellipse(float a, float b, float c, float d);
     void line(float x1, float y1, float x2, float y2);
     void point(float x, float y);
@@ -52,6 +53,7 @@ public:
     void stroke(int v1, int v2, int v3, int alpha=255);
     void noStroke();
 
+    void ellipseMode(EllipseMode mode);
     void strokeWeight(int weight);
 
     void rotate(float angle);

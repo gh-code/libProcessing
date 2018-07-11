@@ -29,6 +29,7 @@ extern char key;
 QtCanvas::QtCanvas(QWidget *parent)
     : Canvas(), QWidget(parent)
 {
+    ellipse_mode = CENTER;
 }
 
 QtCanvas::~QtCanvas()
@@ -62,11 +63,70 @@ void QtCanvas::paint(QPainter *painter, QPaintEvent *event)
                 painter->restore();
                 break;
             }
+            case PElement::Arc:
+            {
+                PArc *a = (PArc *) e;
+                float x = a->a() - 0.5 * a->c();
+                float y = a->b() - 0.5 * a->d();
+                float start = a->start() * -2880.0 / M_PI;
+                float stop = a->stop() * -2880.0 / M_PI - start;
+                switch (a->mode())
+                {
+                    case OPEN_PIE:
+                        painter->setPen(Qt::NoPen);
+                        painter->drawPie(x, y, a->c(), a->d(), start, stop);
+                        painter->setPen(pen);
+                        painter->drawArc(x, y, a->c(), a->d(), start, stop);
+                        break;
+
+                    case PIE:
+                        painter->drawPie(x, y, a->c(), a->d(), start, stop);
+                        break;
+
+                    case OPEN:
+                        painter->setPen(Qt::NoPen);
+                        painter->drawChord(x, y, a->c(), a->d(), start, stop);
+                        painter->setPen(pen);
+                        painter->drawArc(x, y, a->c(), a->d(), start, stop);
+                        break;
+
+                    case CHORD:
+                        painter->drawChord(x, y, a->c(), a->d(), start, stop);
+                        break;
+                }
+                break;
+            }
             case PElement::Ellipse:
             {
                 PEllipse *el = (PEllipse *) e;
-                QPointF center(el->a(), el->b());
-                painter->drawEllipse(center, el->c(), el->d());
+                switch (ellipse_mode)
+                {
+                    case RADIUS:
+                    {
+                        QPointF center(el->a(), el->b());
+                        painter->drawEllipse(center, el->c(), el->d());
+                        break;
+                    }
+                    case CENTER:
+                    {
+                        QPointF center(el->a(), el->b());
+                        painter->drawEllipse(center, 0.5 * el->c(), 0.5 * el->d());
+                        break;
+                    }
+                    case CORNER:
+                    {
+                        painter->drawEllipse(el->a(), el->b(), el->c(), el->d());
+                        break;
+                    }
+                    case CORNERS:
+                    {
+                        QPointF tl(el->a(), el->b());
+                        QPointF br(el->c(), el->d());
+                        QRectF bbox(tl, br);
+                        painter->drawEllipse(bbox);
+                        break;
+                    }
+                }
                 break;
             }
             case PElement::Line:
@@ -133,13 +193,22 @@ void QtCanvas::paint(QPainter *painter, QPaintEvent *event)
             {
                 PStroke *s = (PStroke *) e;
                 QColor c = QColor::fromRgb(s->v1(), s->v2(), s->v3(), s->alpha());
+                int width = pen.width();
                 pen = QPen(c);
+                pen.setWidth(width);
+                pen.setCapStyle(Qt::RoundCap);
                 painter->setPen(pen);
                 break;
             }
             case PElement::NoStroke:
             {
                 painter->setPen(Qt::NoPen);
+                break;
+            }
+            case PElement::EllipseMode:
+            {
+                PEllipseMode *em = (PEllipseMode *) e;
+                ellipse_mode = em->mode();
                 break;
             }
             case PElement::StrokeWeight:

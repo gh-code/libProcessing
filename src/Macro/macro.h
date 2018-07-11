@@ -561,6 +561,28 @@ enum Renderer
     PDF
 };
 
+enum ArcMode
+{
+    OPEN_PIE,
+    PIE,
+    OPEN,
+    CHORD
+};
+
+enum EllipseMode
+{
+    RADIUS,
+    CENTER,
+    CORNER,
+    CORNERS
+};
+
+enum ColorMode
+{
+    RGB,
+    HSB
+};
+
 typedef void (*PCALLBACK)();
 typedef std::map<std::string,PCALLBACK> PFunctions;
 

@@ -16,6 +16,7 @@ public:
         None,
         PushStyle,
         PopStyle,
+        Arc,
         Ellipse,
         Line,
         Point,
@@ -27,6 +28,7 @@ public:
         NoFill,
         Stroke,
         NoStroke,
+        EllipseMode,
         StrokeWeight,
         Rotate,
         Translate
@@ -60,6 +62,27 @@ public:
     PPopStyle() {}
     PElement::PElementType type() const { return PElement::PopStyle; }
     PElement * clone() const { return new PPopStyle; }
+};
+
+class PArc : public PElement
+{
+public:
+    PArc(float a, float b, float c, float d, float start, float stop, ArcMode mode=OPEN_PIE)
+        : m_a(a), m_b(b), m_c(c), m_d(d), m_start(start), m_stop(stop), m_mode(mode) {}
+
+    PElement::PElementType type() const { return PElement::Arc; }
+    PElement * clone() const { return new PArc(m_a, m_b, m_c, m_d, m_start, m_stop, m_mode); }
+    float a() const { return m_a; }
+    float b() const { return m_b; }
+    float c() const { return m_c; }
+    float d() const { return m_d; }
+    float start() const { return m_start; }
+    float stop() const { return m_stop; }
+    ArcMode mode() const { return m_mode; }
+
+private:
+    float m_a, m_b, m_c, m_d, m_start, m_stop;
+    ArcMode m_mode;
 };
 
 class PEllipse : public PElement
@@ -233,6 +256,20 @@ public:
     PNoStroke() {}
     PElement::PElementType type() const { return PElement::NoStroke; }
     PElement * clone() const { return new PNoStroke; }
+};
+
+class PEllipseMode : public PElement
+{
+public:
+    PEllipseMode(PROCESSING_NAMESPACE::EllipseMode mode)
+        : m_mode(mode) {}
+
+    PElement::PElementType type() const { return PElement::EllipseMode; }
+    PElement * clone() const { return new PEllipseMode(m_mode); }
+    PROCESSING_NAMESPACE::EllipseMode mode() const { return m_mode; }
+
+private:
+    PROCESSING_NAMESPACE::EllipseMode m_mode;
 };
 
 class PStrokeWeight : public PElement

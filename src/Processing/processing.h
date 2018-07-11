@@ -35,20 +35,6 @@ private:
     static int exec(int argc, char *argv[], PFunctions &);
 };
 
-enum EllipseMode
-{
-    RADIUS,
-    CENTER,
-    CORNER,
-    CORNERS
-};
-
-enum ColorMode
-{
-    RGB,
-    HSB
-};
-
 // Structure
 void exit();
 void loop();
@@ -61,6 +47,7 @@ void size(int width, int height, enum Renderer renderer=PDEFAULT);
 void setFrameRate(int fps);
 
 // 2D Primitives
+void arc(float a, float b, float c, float d, float start, float stop, ArcMode mode=OPEN);
 void ellipse(float a, float b, float c, float d);
 void line(float x1, float y1, float x2, float y2);
 void point(float x, float y);
