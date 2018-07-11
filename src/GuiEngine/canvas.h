@@ -53,7 +53,8 @@ public:
     void stroke(int v1, int v2, int v3, int alpha=255);
     void noStroke();
 
-    void ellipseMode(EllipseMode mode);
+    void ellipseMode(DrawMode mode);
+    void rectMode(DrawMode mode);
     void strokeWeight(int weight);
 
     void rotate(float angle);

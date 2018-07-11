@@ -80,7 +80,8 @@ public:
     inline void stroke(int v1, int v2, int v3, int alpha=255) { canvas->stroke(v1, v2, v3, alpha); }
     inline void noStroke() { canvas->noStroke(); }
 
-    inline void ellipseMode(EllipseMode mode) { canvas->ellipseMode(mode); }
+    inline void ellipseMode(DrawMode mode) { canvas->ellipseMode(mode); }
+    inline void rectMode(DrawMode mode) { canvas->rectMode(mode); }
     inline void strokeWeight(int weight) { canvas->strokeWeight(weight); }
 
     inline void rotate(float angle) { canvas->rotate(angle); }
@@ -285,9 +286,14 @@ void noStroke()
     ProcessingPrivate::getInstance()->noStroke();
 }
 
-void ellipseMode(EllipseMode mode)
+void ellipseMode(DrawMode mode)
 {
     ProcessingPrivate::getInstance()->ellipseMode(mode);
+}
+
+void rectMode(DrawMode mode)
+{
+    ProcessingPrivate::getInstance()->rectMode(mode);
 }
 
 void strokeWeight(int weight)

@@ -29,6 +29,7 @@ public:
         Stroke,
         NoStroke,
         EllipseMode,
+        RectMode,
         StrokeWeight,
         Rotate,
         Translate
@@ -261,15 +262,29 @@ public:
 class PEllipseMode : public PElement
 {
 public:
-    PEllipseMode(PROCESSING_NAMESPACE::EllipseMode mode)
+    PEllipseMode(DrawMode mode)
         : m_mode(mode) {}
 
     PElement::PElementType type() const { return PElement::EllipseMode; }
     PElement * clone() const { return new PEllipseMode(m_mode); }
-    PROCESSING_NAMESPACE::EllipseMode mode() const { return m_mode; }
+    DrawMode mode() const { return m_mode; }
 
 private:
-    PROCESSING_NAMESPACE::EllipseMode m_mode;
+    DrawMode m_mode;
+};
+
+class PRectMode : public PElement
+{
+public:
+    PRectMode(DrawMode mode)
+        : m_mode(mode) {}
+
+    PElement::PElementType type() const { return PElement::RectMode; }
+    PElement * clone() const { return new PRectMode(m_mode); }
+    DrawMode mode() const { return m_mode; }
+
+private:
+    DrawMode m_mode;
 };
 
 class PStrokeWeight : public PElement

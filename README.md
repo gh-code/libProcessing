@@ -96,11 +96,18 @@ WARNING: I have a real job so I can only spend a little time on this project. Th
 
 ### Shape
 #### 2D Primitives
+* arc()
 * ellipse()
 * line()
 * point()
+* quad()
 * rect()
 * triangle()
+
+#### Attributes
+* ellipseMode()
+* rectMode()
+* strokeWeight()
 
 ### Input
 #### Mouse
@@ -118,14 +125,14 @@ WARNING: I have a real job so I can only spend a little time on this project. Th
 #### Keyboard
 * key
 * keyCode
-* isKeyPressed()
-* keyPressed
-* isKeyReleased()
-* keyTyped()
+* KeyPressed()
+* iskeyPressed
+* KeyReleased()
 
 ### Output
 #### Text Area
 * print()
+* println()
 
 ### Transform
 * rotate()

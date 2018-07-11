@@ -30,6 +30,7 @@ QtCanvas::QtCanvas(QWidget *parent)
     : Canvas(), QWidget(parent)
 {
     ellipse_mode = CENTER;
+    rect_mode = CORNER;
 }
 
 QtCanvas::~QtCanvas()
@@ -155,7 +156,36 @@ void QtCanvas::paint(QPainter *painter, QPaintEvent *event)
             case PElement::Rect:
             {
                 PRect *r = (PRect *) e;
-                painter->drawRect(r->a(), r->b(), r->c(), r->d());
+                switch (rect_mode)
+                {
+                    case RADIUS:
+                    {
+                        float x = r->a() - r->c();
+                        float y = r->b() - r->d();
+                        painter->drawRect(x, y, 2 * r->c(), 2 * r->d());
+                        break;
+                    }
+                    case CENTER:
+                    {
+                        float x = r->a() - 0.5 * r->c();
+                        float y = r->b() - 0.5 * r->d();
+                        painter->drawRect(x, y, r->c(), r->d());
+                        break;
+                    }
+                    case CORNER:
+                    {
+                        painter->drawRect(r->a(), r->b(), r->c(), r->d());
+                        break;
+                    }
+                    case CORNERS:
+                    {
+                        QPointF tl(r->a(), r->b());
+                        QPointF br(r->c(), r->d());
+                        QRectF bbox(tl, br);
+                        painter->drawRect(bbox);
+                        break;
+                    }
+                }
                 break;
             }
             case PElement::Triangle:
@@ -209,6 +239,12 @@ void QtCanvas::paint(QPainter *painter, QPaintEvent *event)
             {
                 PEllipseMode *em = (PEllipseMode *) e;
                 ellipse_mode = em->mode();
+                break;
+            }
+            case PElement::RectMode:
+            {
+                PRectMode *rm = (PRectMode *) e;
+                rect_mode = rm->mode();
                 break;
             }
             case PElement::StrokeWeight:

@@ -193,9 +193,14 @@ void Canvas::noStroke()
     draw_queue.push_back(new PNoStroke);
 }
 
-void Canvas::ellipseMode(EllipseMode mode)
+void Canvas::ellipseMode(DrawMode mode)
 {
     draw_queue.push_back(new PEllipseMode(mode));
+}
+
+void Canvas::rectMode(DrawMode mode)
+{
+    draw_queue.push_back(new PRectMode(mode));
 }
 
 void Canvas::strokeWeight(int weight)

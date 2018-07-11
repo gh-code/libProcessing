@@ -67,12 +67,15 @@ void stroke(int v1, int v2, int v3, int alpha=255);
 void noStroke();
 
 // Attribute
-void ellipseMode(EllipseMode mode);
+void ellipseMode(DrawMode mode);
+void rectMode(DrawMode mode);
 void strokeWeight(int weight);
 
 // Output
 template <class T>
-inline void print(T what) { std::cout << what << std::endl; }
+inline void print(T what) { std::cout << what; }
+template <class T>
+inline void println(T what) { std::cout << what << std::endl; }
 
 // Transform
 void rotate(float angle);

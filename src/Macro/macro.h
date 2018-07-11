@@ -569,7 +569,7 @@ enum ArcMode
     CHORD
 };
 
-enum EllipseMode
+enum DrawMode
 {
     RADIUS,
     CENTER,
