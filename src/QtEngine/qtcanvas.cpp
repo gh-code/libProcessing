@@ -29,8 +29,8 @@ extern char key;
 QtCanvas::QtCanvas(QWidget *parent)
     : Canvas(), QWidget(parent)
 {
-    ellipse_mode = CENTER;
-    rect_mode = CORNER;
+    style.ellipse_mode = CENTER;
+    style.rect_mode = CORNER;
 }
 
 QtCanvas::~QtCanvas()
@@ -56,12 +56,14 @@ void QtCanvas::paint(QPainter *painter, QPaintEvent *event)
 
             case PElement::PushStyle:
             {
+                style_stack.push(style);
                 painter->save();
                 break;
             }
             case PElement::PopStyle:
             {
                 painter->restore();
+                style = style_stack.pop();
                 break;
             }
             case PElement::Arc:
@@ -76,7 +78,7 @@ void QtCanvas::paint(QPainter *painter, QPaintEvent *event)
                     case OPEN_PIE:
                         painter->setPen(Qt::NoPen);
                         painter->drawPie(x, y, a->c(), a->d(), start, stop);
-                        painter->setPen(pen);
+                        painter->setPen(style.pen);
                         painter->drawArc(x, y, a->c(), a->d(), start, stop);
                         break;
 
@@ -87,7 +89,7 @@ void QtCanvas::paint(QPainter *painter, QPaintEvent *event)
                     case OPEN:
                         painter->setPen(Qt::NoPen);
                         painter->drawChord(x, y, a->c(), a->d(), start, stop);
-                        painter->setPen(pen);
+                        painter->setPen(style.pen);
                         painter->drawArc(x, y, a->c(), a->d(), start, stop);
                         break;
 
@@ -100,7 +102,7 @@ void QtCanvas::paint(QPainter *painter, QPaintEvent *event)
             case PElement::Ellipse:
             {
                 PEllipse *el = (PEllipse *) e;
-                switch (ellipse_mode)
+                switch (style.ellipse_mode)
                 {
                     case RADIUS:
                     {
@@ -156,7 +158,7 @@ void QtCanvas::paint(QPainter *painter, QPaintEvent *event)
             case PElement::Rect:
             {
                 PRect *r = (PRect *) e;
-                switch (rect_mode)
+                switch (style.rect_mode)
                 {
                     case RADIUS:
                     {
@@ -210,8 +212,8 @@ void QtCanvas::paint(QPainter *painter, QPaintEvent *event)
             {
                 PFill *f = (PFill *) e;
                 QColor c = QColor::fromRgb(f->v1(), f->v2(), f->v3(), f->alpha());
-                brush = QBrush(c);
-                painter->setBrush(brush);
+                style.brush = QBrush(c);
+                painter->setBrush(style.brush);
                 break;
             }
             case PElement::NoFill:
@@ -223,11 +225,11 @@ void QtCanvas::paint(QPainter *painter, QPaintEvent *event)
             {
                 PStroke *s = (PStroke *) e;
                 QColor c = QColor::fromRgb(s->v1(), s->v2(), s->v3(), s->alpha());
-                int width = pen.width();
-                pen = QPen(c);
-                pen.setWidth(width);
-                pen.setCapStyle(Qt::RoundCap);
-                painter->setPen(pen);
+                int width = style.pen.width();
+                style.pen = QPen(c);
+                style.pen.setWidth(width);
+                style.pen.setCapStyle(Qt::RoundCap);
+                painter->setPen(style.pen);
                 break;
             }
             case PElement::NoStroke:
@@ -238,20 +240,20 @@ void QtCanvas::paint(QPainter *painter, QPaintEvent *event)
             case PElement::EllipseMode:
             {
                 PEllipseMode *em = (PEllipseMode *) e;
-                ellipse_mode = em->mode();
+                style.ellipse_mode = em->mode();
                 break;
             }
             case PElement::RectMode:
             {
                 PRectMode *rm = (PRectMode *) e;
-                rect_mode = rm->mode();
+                style.rect_mode = rm->mode();
                 break;
             }
             case PElement::StrokeWeight:
             {
                 PStrokeWeight *sw = (PStrokeWeight *) e;
-                pen.setWidth(sw->weight());
-                painter->setPen(pen);
+                style.pen.setWidth(sw->weight());
+                painter->setPen(style.pen);
                 break;
             }
             case PElement::Rotate:

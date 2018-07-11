@@ -6,12 +6,22 @@
 
 #include <QTimer>
 #include <QWidget>
+#include <QStack>
+#include <QPair>
 #include <QBrush>
 #include <QPen>
 #include "macro.h"
 #include "canvas.h"
 
 PROCESSING_BEGIN_NAMESPACE
+
+struct StyleData
+{
+    QBrush brush;
+    QPen pen;
+    DrawMode ellipse_mode;
+    DrawMode rect_mode;
+};
 
 class QtCanvas : public Canvas, public QWidget
 {
@@ -38,10 +48,8 @@ protected:
     void keyUpdateGlobal(QKeyEvent *event, bool pressed);
 
 protected:
-    QBrush brush;
-    QPen pen;
-    DrawMode ellipse_mode;
-    DrawMode rect_mode;
+    QStack<StyleData> style_stack;
+    StyleData style;
 };
 
 PROCESSING_END_NAMESPACE
