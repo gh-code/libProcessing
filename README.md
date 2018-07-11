@@ -114,9 +114,9 @@ WARNING: I have a real job so I can only spend a little time on this project. Th
 * mouseClicked()
 * mouseDragged()
 * mouseMoved()
-* isMousePressed()
-* mousePressed
-* isMouseReleased()
+* mousePressed()
+* isMousePressed
+* mouseReleased()
 * mouseX
 * mouseY
 * pmouseX
@@ -125,9 +125,10 @@ WARNING: I have a real job so I can only spend a little time on this project. Th
 #### Keyboard
 * key
 * keyCode
-* KeyPressed()
-* iskeyPressed
-* KeyReleased()
+* keyPressed()
+* isKeyPressed
+* keyReleased()
+* keyTyped()
 
 ### Output
 #### Text Area
