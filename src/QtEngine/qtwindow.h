@@ -7,7 +7,7 @@
 #include <QTimer>
 #include <QWidget>
 #include "window.h"
-#include "macro.h"
+#include "global.h"
 
 class QHBoxLayout;
 

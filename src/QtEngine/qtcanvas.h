@@ -10,7 +10,7 @@
 #include <QPair>
 #include <QBrush>
 #include <QPen>
-#include "macro.h"
+#include "global.h"
 #include "canvas.h"
 
 PROCESSING_BEGIN_NAMESPACE

@@ -4,7 +4,7 @@
 #ifndef ARGS_H
 #define ARGS_H
 
-#include "macro.h"
+#include "global.h"
 
 PROCESSING_BEGIN_NAMESPACE
 

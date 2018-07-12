@@ -241,6 +241,11 @@ void triangle(float x1, float y1, float x2, float y2, float x3, float y3)
     ProcessingPrivate::getInstance()->triangle(x1, y1, x2, y2, x3, y3);
 }
 
+void background(color c)
+{
+    ProcessingPrivate::getInstance()->background(red(c), green(c), blue(c), alpha(c));
+}
+
 void background(int rgb)
 {
     ProcessingPrivate::getInstance()->background(rgb);
@@ -254,6 +259,11 @@ void background(int v1, int v2, int v3, int alpha)
 void colorMode(ColorMode mode)
 {
     ProcessingPrivate::getInstance()->colorMode(mode);
+}
+
+void fill(color c)
+{
+    ProcessingPrivate::getInstance()->fill(red(c), green(c), blue(c), alpha(c));
 }
 
 void fill(int gray, int alpha)
@@ -271,6 +281,11 @@ void noFill()
     ProcessingPrivate::getInstance()->noFill();
 }
 
+void stroke(color c)
+{
+    ProcessingPrivate::getInstance()->stroke(red(c), green(c), blue(c), alpha(c));
+}
+
 void stroke(int gray, int alpha)
 {
     ProcessingPrivate::getInstance()->stroke(gray, alpha);
@@ -284,6 +299,117 @@ void stroke(int v1, int v2, int v3, int alpha)
 void noStroke()
 {
     ProcessingPrivate::getInstance()->noStroke();
+}
+
+float alpha(color rgb)
+{
+    return (rgb.toInt() & 0x000000FF);
+}
+
+float blue(color rgb)
+{
+    return ((rgb.toInt() & 0x0000FF00) >> 8);
+}
+
+float brightness(color rgb)
+{
+    return ((rgb.toHsbInt() & 0xFF000000) >> 8);
+}
+
+void color::store(int v1, int v2, int v3, int alpha)
+{
+    data = ((v1 & 0xFF) << 24)
+         | ((v2 & 0xFF) << 16)
+         | ((v3 & 0xFF) << 8)
+         | (alpha & 0xFF);
+}
+
+color::color(int v1, int v2, int v3, int alpha)
+{
+    store(v1, v2, v3, alpha);
+}
+
+static bool is_digit(char c)
+{
+    return ('0' <= c || c <= '9' || 'A' <= c || c <= 'F' || 'a' <= c || c <= 'f');
+}
+
+static int hex_to_int(char c)
+{
+    int i = c - '0';
+    if (i > 9)
+        i = c - 'A' + 10;
+    if (i > 15)
+        i = c - 'a' + 10;
+    return i;
+}
+
+color::color(const char *hex)
+{
+    if (hex[0] != '#')
+        throw "bad hexadecimal notation: no '#'";
+    const char *tmp = hex + 1;
+    int d[8];
+    int i;
+    for (i = 0; i < 8; i++)
+    {
+        char c = tmp[i];
+        if (c == '\0')
+            break;
+        if (!is_digit(c))
+            throw "bad hexadecimal notation: not digit";
+        d[i] = hex_to_int(c);
+    }
+    if (tmp[i] != '\0')
+        throw "bad hexadecimal notation";
+
+    int r, g, b, a = 0xFF;
+    switch (i)
+    {
+        case 3:
+            r = (d[0] << 4) | d[0];
+            g = (d[1] << 4) | d[1];
+            b = (d[2] << 4) | d[2];
+            break;
+        case 6:
+            r = (d[0] << 4) | d[1];
+            g = (d[2] << 4) | d[3];
+            b = (d[4] << 4) | d[5];
+            break;
+        case 8:
+            r = (d[0] << 4) | d[1];
+            g = (d[2] << 4) | d[3];
+            b = (d[4] << 4) | d[5];
+            a = (d[6] << 4) | d[7];
+            break;
+        default:
+            throw "bad hexadecimal notation: invalid format";
+    }
+    store(r, g, b, a);
+}
+
+float green(color rgb)
+{
+    return ((rgb.toInt() & 0x00FF0000) >> 16);
+}
+
+float hue(color rgb)
+{
+    return ((rgb.toHsbInt() & 0xFF000000) >> 24);
+}
+
+//int lerpColor(int c1, int c2, float amt)
+//{
+//}
+
+float red(color rgb)
+{
+    return ((rgb.toInt() & 0xFF000000) >> 24);
+}
+
+float saturation(color rgb)
+{
+    return ((rgb.toHsbInt() & 0x00FF0000) >> 16);
 }
 
 void ellipseMode(DrawMode mode)

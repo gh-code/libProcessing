@@ -11,6 +11,8 @@ class TestProcessing : public QObject
 {
     Q_OBJECT
 private slots:
+    void test_color();
+
     void test_abs();
     void test_ceil();
     void test_constrain();
@@ -41,6 +43,38 @@ private slots:
 
     void test_random();
 };
+
+void TestProcessing::test_color()
+{
+    int i;
+    for (i = 0; i < 10000; i++)
+    {
+        int r = random(0, 255);
+        int g = random(0, 255);
+        int b = random(0, 255);
+        int a = random(0, 255);
+        color c = color(r, g, b, a);
+        QCOMPARE((int) red(c), r);
+        QCOMPARE((int) green(c), g);
+        QCOMPARE((int) blue(c), b);
+        QCOMPARE((int) alpha(c), a);
+    }
+    color c = "#ABC";
+    QCOMPARE(red(c), 170.0);
+    QCOMPARE(green(c), 187.0);
+    QCOMPARE(blue(c), 204.0);
+    QCOMPARE(alpha(c), 255.0);
+    c = "#12345678";
+    QCOMPARE(red(c), 18.0);
+    QCOMPARE(green(c), 52.0);
+    QCOMPARE(blue(c), 86.0);
+    QCOMPARE(alpha(c), 120.0);
+    c = "#654321";
+    QCOMPARE(red(c), 101.0);
+    QCOMPARE(green(c), 67.0);
+    QCOMPARE(blue(c), 33.0);
+    QCOMPARE(alpha(c), 255.0);
+}
 
 void TestProcessing::test_abs()
 {

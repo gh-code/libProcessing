@@ -4,7 +4,7 @@
 #ifndef P_PELEMENT_H
 #define P_PELEMENT_H
 
-#include "macro.h"
+#include "global.h"
 
 PROCESSING_BEGIN_NAMESPACE
 

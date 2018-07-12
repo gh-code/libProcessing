@@ -60,7 +60,9 @@ WARNING: I have a real job so I can only spend a little time on this project. Th
 ### Data
 #### Primitive
 * bool
+* byte
 * char
+* color
 * double
 * float
 * int
@@ -146,6 +148,16 @@ WARNING: I have a real job so I can only spend a little time on this project. Th
 * noFill()
 * noStroke()
 * stroke()
+
+#### Creating & Reading
+* alpha()
+* blue()
+* brightness()
+* color()
+* green()
+* hue()
+* red()
+* saturation()
 
 ### Math
 #### Operators

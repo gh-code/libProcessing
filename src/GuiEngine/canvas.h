@@ -4,7 +4,7 @@
 #ifndef PCANVAS_H
 #define PCANVAS_H
 
-#include "macro.h"
+#include "global.h"
 #include <list>
 
 PROCESSING_BEGIN_NAMESPACE

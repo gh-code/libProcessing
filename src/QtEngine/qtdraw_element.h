@@ -8,7 +8,7 @@
  * I'm not sure about this. I think switch-case is enough currently.
  */
 #include "draw_element.h"
-#include "macro.h"
+#include "global.h"
 
 PROCESSING_BEGIN_NAMESPACE
 

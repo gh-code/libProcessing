@@ -4,7 +4,7 @@
 #ifndef MOUSE_H
 #define MOUSE_H
 
-#include "macro.h"
+#include "global.h"
 
 PROCESSING_BEGIN_NAMESPACE
 

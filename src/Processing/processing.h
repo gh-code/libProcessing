@@ -6,7 +6,7 @@
 #ifndef PROCESSING_H
 #define PROCESSING_H
 
-#include "macro.h"
+#include "global.h"
 #include "args.h"
 
 #include <cmath>
@@ -18,6 +18,25 @@ PFUNCTIONS
 #undef PB
 
 PROCESSING_BEGIN_NAMESPACE
+
+typedef char byte;
+
+class color
+{
+public:
+    color(int gray) : color(gray, gray, gray, 0xFF) {}
+    color(int gray, int alpha) : color(gray, gray, gray, alpha) {}
+    color(int v1, int v2, int v3) : color(v1, v2, v3, 0xFF) {}
+    color(int v1, int v2, int v3, int alpha);
+    color(const char *hex);
+    int toInt() { return data; }
+    int toHsbInt() { return dataHsb; }
+
+private:
+    void store(int, int, int, int);
+    int data;
+    int dataHsb;
+};
 
 class Processing
 {
@@ -56,15 +75,26 @@ void rect(float a, float b, float c, float d);
 void triangle(float x1, float y1, float x2, float y2, float x3, float y3);
 
 // Color
+void background(color);
 void background(int);
 void background(int v1, int v2, int v3, int alpha=255);
 void colorMode(ColorMode mode);
+void fill(color c);
 void fill(int gray, int alpha=255);
 void fill(int v1, int v2, int v3, int alpha=255);
 void noFill();
+void stroke(color c);
 void stroke(int gray, int alpha=255);
 void stroke(int v1, int v2, int v3, int alpha=255);
 void noStroke();
+float alpha(color rgb);
+float blue(color rgb);
+float brightness(color rgb);
+float green(color rgb);
+float hue(color rgb);
+//int lerpColor(int c1, int c2, float amt);
+float red(color rgb);
+float saturation(color rgb);
 
 // Attribute
 void ellipseMode(DrawMode mode);
