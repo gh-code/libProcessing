@@ -4,7 +4,7 @@
 #ifndef GUIENGINE_H
 #define GUIENGINE_H
 
-#include "global.h"
+#include "pglobal.h"
 #include "window.h"
 #include "canvas.h"
 

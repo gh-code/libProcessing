@@ -1,8 +1,8 @@
 /**
  * Author: Gary Huang <gh.nctu+code@gmail.com>
  */
-#ifndef P_GLOBAL_H
-#define P_GLOBAL_H
+#ifndef PGLOBAL_H
+#define PGLOBAL_H
 
 #include <map>
 #include <string>
@@ -588,4 +588,4 @@ typedef std::map<std::string,PCALLBACK> PFunctions;
 
 PROCESSING_END_NAMESPACE 
 
-#endif // P_GLOBAL_H
+#endif // PGLOBAL_H

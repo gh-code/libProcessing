@@ -4,7 +4,7 @@
 #ifndef PWINDOW_H
 #define PWINDOW_H
 
-#include "global.h"
+#include "pglobal.h"
 
 PROCESSING_BEGIN_NAMESPACE
 

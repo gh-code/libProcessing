@@ -4,7 +4,7 @@
 #ifndef P_QTHELPER_H
 #define P_QTHELPER_H
 
-#include "global.h"
+#include "pglobal.h"
 
 class QPainter;
 class QPaintEvent;

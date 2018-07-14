@@ -1,10 +1,10 @@
 /**
  * Author: Gary Huang <gh.nctu+code@gmail.com>
  */
-#ifndef ARGS_H
-#define ARGS_H
+#ifndef PARGS_H
+#define PARGS_H
 
-#include "global.h"
+#include "pglobal.h"
 
 PROCESSING_BEGIN_NAMESPACE
 
@@ -21,4 +21,4 @@ private:
 
 PROCESSING_END_NAMESPACE
 
-#endif // ARGS_H
+#endif // PARGS_H

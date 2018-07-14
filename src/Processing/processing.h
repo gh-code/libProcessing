@@ -6,8 +6,8 @@
 #ifndef PROCESSING_H
 #define PROCESSING_H
 
-#include "global.h"
-#include "args.h"
+#include "pglobal.h"
+#include "pargs.h"
 
 #include <cmath>
 #include <iostream>
@@ -153,6 +153,12 @@ extern int width;
 extern int height;
 extern int frameRate;
 extern int frameCount;
+//extern MouseButton mouseButton;
+extern bool isMousePressed;
+extern int mouseX;
+extern int mouseY;
+extern int pmouseX;
+extern int pmouseY;
 extern int keyCode;
 extern bool isKeyPressed;
 extern char key;
