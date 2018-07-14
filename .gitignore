@@ -1,4 +1,4 @@
-ompiled Object files
+# Compiled Object files
 *.slo
 *.lo
 *.o
@@ -28,14 +28,16 @@ ompiled Object files
 *.app
 
 # QMake
+.qmake.stash
 src/*/Makefile
 src/Makefile
-.qmake.stash
+src/object_script.Processing
+moc_*
+*.moc
 
 # Others
 *.log
 *.swp
 .nfs*
-
-main.exe
-main
+include/*.h
+Makefile

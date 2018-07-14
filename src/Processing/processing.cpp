@@ -68,6 +68,8 @@ public:
     inline void point(float x, float y) { canvas->point(x, y); }
     inline void quad(float x1, float y1, float x2, float y2, float x3, float y3, float x4, float y4) { canvas->quad(x1, y1, x2, y2, x3, y3, x4, y4); }
     inline void rect(float a, float b, float c, float d) { canvas->rect(a, b, c, d); }
+    inline void rect(float a, float b, float c, float d, float r) { canvas->rect(a, b, c, d, r); }
+    inline void rect(float a, float b, float c, float d, float tl, float tr, float br, float bl) { canvas->rect(a, b, c, d, tl, tr, br, bl); }
     inline void triangle(float x1, float y1, float x2, float y2, float x3, float y3) { canvas->triangle(x1, y1, x2, y2, x3, y3); }
 
     inline void background(int rgb) { canvas->background(rgb); }
@@ -236,6 +238,16 @@ void rect(float a, float b, float c, float d)
     ProcessingPrivate::getInstance()->rect(a, b, c, d);
 }
 
+void rect(float a, float b, float c, float d, float r)
+{
+    ProcessingPrivate::getInstance()->rect(a, b, c, d, r);
+}
+
+void rect(float a, float b, float c, float d, float tl, float tr, float br, float bl)
+{
+    ProcessingPrivate::getInstance()->rect(a, b, c, d, tl, tr, br, bl);
+}
+
 void triangle(float x1, float y1, float x2, float y2, float x3, float y3)
 {
     ProcessingPrivate::getInstance()->triangle(x1, y1, x2, y2, x3, y3);
@@ -347,7 +359,7 @@ static int hex_to_int(char c)
 color::color(const char *hex)
 {
     if (hex[0] != '#')
-        throw "bad hexadecimal notation: no '#'";
+        throw "bad hex notation: no '#'";
     const char *tmp = hex + 1;
     int d[8];
     int i;
@@ -357,11 +369,11 @@ color::color(const char *hex)
         if (c == '\0')
             break;
         if (!is_digit(c))
-            throw "bad hexadecimal notation: not digit";
+            throw "bad hex notation: not digit";
         d[i] = hex_to_int(c);
     }
     if (tmp[i] != '\0')
-        throw "bad hexadecimal notation";
+        throw "bad hex notation";
 
     int r, g, b, a = 0xFF;
     switch (i)
@@ -383,7 +395,7 @@ color::color(const char *hex)
             a = (d[6] << 4) | d[7];
             break;
         default:
-            throw "bad hexadecimal notation: invalid format";
+            throw "bad hex notation: only support format: #RGB, #RRGGBB, #RRGGBBAA";
     }
     store(r, g, b, a);
 }

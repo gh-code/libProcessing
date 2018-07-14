@@ -148,6 +148,16 @@ void Canvas::rect(float a, float b, float c, float d)
     draw_queue.push_back(new PRect(a, b, c, d));
 }
 
+void Canvas::rect(float a, float b, float c, float d, float r)
+{
+    draw_queue.push_back(new PRoundedRect(a, b, c, d, r));
+}
+
+void Canvas::rect(float a, float b, float c, float d, float tl, float tr, float br, float bl)
+{
+    draw_queue.push_back(new PRoundedRectC4(a, b, c, d, tl, tr, br, bl));
+}
+
 void Canvas::triangle(float x1, float y1, float x2, float y2, float x3, float y3)
 {
     draw_queue.push_back(new PTriangle(x1, y1, x2, y2, x3, y3));

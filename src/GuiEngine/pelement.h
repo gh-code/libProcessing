@@ -22,6 +22,8 @@ public:
         Point,
         Quad,
         Rect,
+        RoundedRect,
+        RoundedRectC4,
         Triangle,
         Background,
         Fill,
@@ -171,6 +173,45 @@ public:
 
 private:
     float m_a, m_b, m_c, m_d;
+};
+
+class PRoundedRect : public PElement
+{
+public:
+    PRoundedRect(float a, float b, float c, float d, float r)
+        : m_a(a), m_b(b), m_c(c), m_d(d), m_r(r) {}
+
+    PElement::PElementType type() const { return PElement::RoundedRect; }
+    PElement * clone() const { return new PRoundedRect(m_a, m_b, m_c, m_d, m_r); }
+    float a() const { return m_a; }
+    float b() const { return m_b; }
+    float c() const { return m_c; }
+    float d() const { return m_d; }
+    float r() const { return m_r; }
+
+private:
+    float m_a, m_b, m_c, m_d, m_r;
+};
+
+class PRoundedRectC4 : public PElement
+{
+public:
+    PRoundedRectC4(float a, float b, float c, float d, float tl, float tr, float br, float bl)
+        : m_a(a), m_b(b), m_c(c), m_d(d), m_tl(tl), m_tr(tr), m_br(br), m_bl(bl) {}
+
+    PElement::PElementType type() const { return PElement::RoundedRectC4; }
+    PElement * clone() const { return new PRoundedRectC4(m_a, m_b, m_c, m_d, m_tl, m_tr, m_br, m_bl); }
+    float a() const { return m_a; }
+    float b() const { return m_b; }
+    float c() const { return m_c; }
+    float d() const { return m_d; }
+    float tl() const { return m_tl; }
+    float tr() const { return m_tr; }
+    float br() const { return m_br; }
+    float bl() const { return m_bl; }
+
+private:
+    float m_a, m_b, m_c, m_d, m_tl, m_tr, m_br, m_bl;
 };
 
 class PTriangle : public PElement

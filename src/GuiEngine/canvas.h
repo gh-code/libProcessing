@@ -42,6 +42,8 @@ public:
     void point(float x, float y);
     void quad(float x1, float y1, float x2, float y2, float x3, float y3, float x4, float y4);
     void rect(float a, float b, float c, float d);
+    void rect(float a, float b, float c, float d, float r);
+    void rect(float a, float b, float c, float d, float tl, float tr, float br, float bl);
     void triangle(float x1, float y1, float x2, float y2, float x3, float y3);
 
     void background(int rgb);

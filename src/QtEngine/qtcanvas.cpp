@@ -43,6 +43,42 @@ void QtCanvas::animate()
     update();
 }
 
+static QRectF getRect(DrawMode mode, float a, float b, float c, float d)
+{
+    QRectF bbox;
+    switch (mode)
+    {
+        case RADIUS:
+        {
+            float x = a - c;
+            float y = b - d;
+            bbox.setRect(x, y, 2 * c, 2 * d);
+            break;
+        }
+        case CENTER:
+        {
+            float x = a - 0.5 * c;
+            float y = b - 0.5 * d;
+            bbox.setRect(x, y, c, d);
+            break;
+        }
+        case CORNER:
+        {
+            bbox.setRect(a, b, c, d);
+            break;
+        }
+        case CORNERS:
+        {
+            QPointF tl(a, b);
+            QPointF br(c, d);
+            bbox.setTopLeft(tl);
+            bbox.setBottomRight(br);
+            break;
+        }
+    }
+    return bbox;
+}
+
 void QtCanvas::paint(QPainter *painter, QPaintEvent *event)
 {
     for (std::list<PElement *>::const_iterator it = draw_queue.cbegin();
@@ -158,36 +194,46 @@ void QtCanvas::paint(QPainter *painter, QPaintEvent *event)
             case PElement::Rect:
             {
                 PRect *r = (PRect *) e;
-                switch (style.rect_mode)
-                {
-                    case RADIUS:
-                    {
-                        float x = r->a() - r->c();
-                        float y = r->b() - r->d();
-                        painter->drawRect(x, y, 2 * r->c(), 2 * r->d());
-                        break;
-                    }
-                    case CENTER:
-                    {
-                        float x = r->a() - 0.5 * r->c();
-                        float y = r->b() - 0.5 * r->d();
-                        painter->drawRect(x, y, r->c(), r->d());
-                        break;
-                    }
-                    case CORNER:
-                    {
-                        painter->drawRect(r->a(), r->b(), r->c(), r->d());
-                        break;
-                    }
-                    case CORNERS:
-                    {
-                        QPointF tl(r->a(), r->b());
-                        QPointF br(r->c(), r->d());
-                        QRectF bbox(tl, br);
-                        painter->drawRect(bbox);
-                        break;
-                    }
-                }
+                QRectF bbox = getRect(style.rect_mode, r->a(), r->b(), r->c(), r->d());
+                painter->drawRect(bbox);
+                break;
+            }
+            case PElement::RoundedRect:
+            {
+                PRoundedRect *r = (PRoundedRect *)e;
+                QRectF bbox = getRect(style.rect_mode, r->a(), r->b(), r->c(), r->d());
+                painter->drawRoundedRect(bbox, r->r(), r->r());
+                break;
+            }
+            case PElement::RoundedRectC4:
+            {
+                PRoundedRectC4 *r = (PRoundedRectC4 *)e;
+                QRectF bbox = getRect(style.rect_mode, r->a(), r->b(), r->c(), r->d());
+                QPainterPath path;
+                float x = bbox.x();
+                float y = bbox.y();
+                float w = bbox.width();
+                float h = bbox.height();
+                float hw = 0.5 * w;
+                float hh = 0.5 * h;
+                path.setFillRule(Qt::WindingFill);
+                path.addRoundedRect(x,      y     , hw, hh, r->tl(), r->tl());
+                path.addRoundedRect(x + hw, y     , hw, hh, r->tr(), r->tr());
+                path.addRoundedRect(x + hw, y + hw, hw, hh, r->br(), r->br());
+                path.addRoundedRect(x,      y + hw, hw, hh, r->bl(), r->bl());
+                path.addRect(x + hw - r->tl(), y, r->tl(), r->tl());
+                path.addRect(x, y + hh - r->tl(), r->tl(), r->tl());
+                path.addRect(x + hw - r->tl(), y + hh - r->tl(), r->tl(), r->tl());
+                path.addRect(x + hw, y, r->tr(), r->tr());
+                path.addRect(x + hw, y + hh - r->tr(), r->tr(), r->tr());
+                path.addRect(x + w - r->tr(), y + hh - r->tr(), r->tr(), r->tr());
+                path.addRect(x + hw, y + hh, r->br(), r->br());
+                path.addRect(x + h - r->br(), y + hh, r->br(), r->br());
+                path.addRect(x + hw, y + h - r->br(), r->br(), r->br());
+                path.addRect(x, y + hh, r->bl(), r->bl());
+                path.addRect(x + hw - r->bl(), y + hh, r->bl(), r->bl());
+                path.addRect(x + hw - r->bl(), y + h - r->bl(), r->bl(), r->bl());
+                painter->drawPath(path.simplified());
                 break;
             }
             case PElement::Triangle:
