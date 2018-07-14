@@ -18,7 +18,6 @@ public:
     virtual void setWindowTitle(const char *title) = 0;
     virtual void setFixedSize(int width, int height) = 0;
     virtual bool hasParent() const { return false; }
-    virtual bool hasOtherParent() const { return false; }
     virtual void show() = 0;
     virtual void start(int fps) = 0;
     virtual Canvas * createCanvas(enum Renderer) = 0;

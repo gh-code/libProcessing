@@ -33,7 +33,6 @@ public:
 
     virtual void setFixedSize(int width, int height);
     virtual bool hasParent() const OVERRIDE { return true; }
-    virtual bool hasOtherParent() const OVERRIDE { return true; }
     virtual void animate();
     void paint(QPainter *painter, QPaintEvent *event);
 

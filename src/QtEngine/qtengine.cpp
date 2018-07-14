@@ -5,20 +5,18 @@
 #include "qtwindow.h"
 #include <QApplication>
 #include <QPushButton>
-#include <iostream>
 
 PROCESSING_BEGIN_NAMESPACE
 
 QtEngine::QtEngine(int argc, char *argv[])
-    : GuiEngine()
+    : GuiEngine(), app(new QApplication(argc, argv))
 {
-    app = new QApplication(argc, argv);
     window = new QtWindow;
 }
 
 QtEngine::~QtEngine()
 {
-    //delete window;
+    delete window;
     delete app;
 }
 

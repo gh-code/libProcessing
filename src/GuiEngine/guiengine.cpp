@@ -14,10 +14,6 @@ GuiEngine::GuiEngine()
 
 GuiEngine::~GuiEngine()
 {
-    // Qt window seems to be handled by QApplication.
-    // If I delete it, the program will crash.
-    if (window && !window->hasOtherParent())
-        delete window;
 }
 
 Window * GuiEngine::createWindow()

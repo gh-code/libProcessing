@@ -13,8 +13,6 @@ Window::Window()
 
 Window::~Window()
 {
-    if (canvas && !canvas->hasOtherParent())
-        delete canvas;
 }
 
 PROCESSING_END_NAMESPACE

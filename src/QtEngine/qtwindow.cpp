@@ -20,6 +20,7 @@ QtWindow::QtWindow()
 
 QtWindow::~QtWindow()
 {
+    delete canvas;
     if (timer)
         delete timer;
 }

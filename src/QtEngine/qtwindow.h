@@ -21,8 +21,7 @@ public:
 
     void setWindowTitle(const char *title) OVERRIDE { QWidget::setWindowTitle(title); }
     void setFixedSize(int width, int height) OVERRIDE { QWidget::setFixedSize(width, height); }
-    bool hasParent() const { return true; } // which is QApplication
-    bool hasOtherParent() const { return true; } // which is QApplication
+    bool hasParent() const { return true; }
     void show() OVERRIDE { QWidget::show(); }
     void start(int fps) OVERRIDE;
     Canvas * createCanvas(enum Renderer) OVERRIDE;
