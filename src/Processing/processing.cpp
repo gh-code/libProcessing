@@ -5,9 +5,7 @@
  */
 #define P_USE_USER_MAIN
 #include "processing.h"
-#undef P_USE_USER_MAIN
 #include "guiengine.h"
-#include <list>
 #include <cstdlib>
 #include <ctime>
 
@@ -18,116 +16,29 @@ int height;
 int frameRate;
 Args args;
 
+static const char *const title = "Processing";
+static GuiEngine *engine;
+static Window *window;
+static Canvas *canvas;
+static enum Renderer renderer;
+
 /**
- * ProcessingPrivate class
+ * Processing class
  */
-class ProcessingPrivate
+int Processing::exec(int argc, char *argv[], PFunctions &callbacks)
 {
-public:
-    const char * const title = "Processing";
+    srand(time(NULL));
 
-public:
-    ~ProcessingPrivate();
-    static ProcessingPrivate *getInstance()
-    {
-        static ProcessingPrivate *inst = 0;
-        if (!inst)
-            inst = new ProcessingPrivate;
-        return inst;
-    }
+    args.length = argc;
+    args.argv = argv;
+    frameRate = P_FRAMERATE_DEFAULT;
+    width = P_WIDTH_DEFAULT;
+    height = P_HEIGHT_DEFAULT;
+    renderer = PDEFAULT;
 
-    inline void exit() { engine->quit(); }
-    inline void loop() { window->loop(); }
-    inline void noLoop() { window->noLoop(); }
-    inline void pushStyle() { canvas->pushStyle(); }
-    inline void popStyle() { canvas->popStyle(); }
-
-    inline void size(int w, int h, enum Renderer r)
-    {
-        if (w < P_WIDTH_MINIMUM)
-            w = P_WIDTH_MINIMUM;
-        if (h < P_HEIGHT_MINIMUM)
-            h = P_HEIGHT_MINIMUM;
-        width = w;
-        height = h;
-        renderer = r;
-        PROCESSING_NAMESPACE::width = w;
-        PROCESSING_NAMESPACE::height = h;
-    }
-    inline void setFrameRate(int fps) {
-        if (frameRate < P_FRAMERATE_MINIMUM)
-            frameRate = P_FRAMERATE_DEFAULT;
-        frameRate = fps;
-        // TODO: calculate frame rate
-        PROCESSING_NAMESPACE::frameRate = frameRate;
-    }
-
-    inline void arc(float a, float b, float c, float d, float start, float stop, ArcMode mode=OPEN_PIE) { canvas->arc(a, b, c, d, start, stop, mode); }
-    inline void ellipse(float a, float b, float c, float d) { canvas->ellipse(a, b, c, d); }
-    inline void line(float x1, float y1, float x2, float y2) { canvas->line(x1, y1, x2, y2); }
-    inline void point(float x, float y) { canvas->point(x, y); }
-    inline void quad(float x1, float y1, float x2, float y2, float x3, float y3, float x4, float y4) { canvas->quad(x1, y1, x2, y2, x3, y3, x4, y4); }
-    inline void rect(float a, float b, float c, float d) { canvas->rect(a, b, c, d); }
-    inline void rect(float a, float b, float c, float d, float r) { canvas->rect(a, b, c, d, r); }
-    inline void rect(float a, float b, float c, float d, float tl, float tr, float br, float bl) { canvas->rect(a, b, c, d, tl, tr, br, bl); }
-    inline void triangle(float x1, float y1, float x2, float y2, float x3, float y3) { canvas->triangle(x1, y1, x2, y2, x3, y3); }
-
-    inline void background(int rgb) { canvas->background(rgb); }
-    inline void background(int v1, int v2, int v3, int alpha=255) { canvas->background(v1, v2, v3, alpha); }
-    inline void colorMode(ColorMode mode) {}
-    inline void fill(int gray, int alpha=255) { canvas->fill(gray, alpha); }
-    inline void fill(int v1, int v2, int v3, int alpha=255) { canvas->fill(v1, v2, v3, alpha); }
-    inline void noFill() { canvas->noFill(); }
-    inline void stroke(int gray, int alpha=255) { canvas->stroke(gray, alpha); }
-    inline void stroke(int v1, int v2, int v3, int alpha=255) { canvas->stroke(v1, v2, v3, alpha); }
-    inline void noStroke() { canvas->noStroke(); }
-
-    inline void ellipseMode(DrawMode mode) { canvas->ellipseMode(mode); }
-    inline void rectMode(DrawMode mode) { canvas->rectMode(mode); }
-    inline void strokeWeight(int weight) { canvas->strokeWeight(weight); }
-
-    inline void rotate(float angle) { canvas->rotate(angle); }
-    inline void translate(float x, float y) { canvas->translate(x, y); }
-
-    int exec(int, char **);
-
-private:
-    friend class Processing;
-
-    ProcessingPrivate();
-    ProcessingPrivate & operator=(const ProcessingPrivate &);
-
-    int width;
-    int height;
-    enum Renderer renderer;
-    int frameRate;
-
-    GuiEngine *engine;
-    Window *window;
-    Canvas *canvas;
-    PFunctions callbacks;
-};
-
-ProcessingPrivate::~ProcessingPrivate()
-{
-    // These will be deleted elsewhere
-    // engine;
-    // window;
-    // canvas;
-}
-
-ProcessingPrivate::ProcessingPrivate()
-    : width(P_WIDTH_DEFAULT), height(P_HEIGHT_DEFAULT), renderer(PDEFAULT),
-      frameRate(P_FRAMERATE_DEFAULT), engine(0), window(0), canvas(0)
-{
-}
-
-int ProcessingPrivate::exec(int argc, char *argv[])
-{
     engine = GuiEngine::create(GuiEngine::Qt, argc, argv);
 
     window = engine->createWindow();
-    window->setWindowTitle(title);
     canvas = window->createCanvas(renderer);
     canvas->stroke(0);
     canvas->fill(255);
@@ -135,6 +46,7 @@ int ProcessingPrivate::exec(int argc, char *argv[])
     if (callbacks["setup"])
         callbacks["setup"]();
 
+    window->setWindowTitle(title);
     window->setFixedSize(width, height);
     canvas = window->replaceCanvas(renderer);
     canvas->setFixedSize(width, height);
@@ -153,187 +65,174 @@ int ProcessingPrivate::exec(int argc, char *argv[])
 }
 
 /**
- * Processing clase
- */
-int Processing::exec(int argc, char *argv[], PFunctions &callbacks)
-{
-    args.length = argc;
-    args.argv = argv;
-
-    srand(time(NULL));
-
-    ProcessingPrivate *inst = ProcessingPrivate::getInstance();
-    inst->callbacks = callbacks;
-    int rc = inst->exec(argc, argv);
-    delete inst;
-
-    return rc;
-}
-
-/**
  * Functions
  */
 void exit()
 {
-    ProcessingPrivate::getInstance()->exit();
+    engine->quit();
 }
 
 void loop()
 {
-    ProcessingPrivate::getInstance()->loop();
+    window->loop();
 }
 
 void noLoop()
 {
-    ProcessingPrivate::getInstance()->noLoop();
+    window->noLoop();
 }
 
 void pushStyle()
 {
-    ProcessingPrivate::getInstance()->pushStyle();
+    canvas->pushStyle();
 }
 
 void popStyle()
 {
-    ProcessingPrivate::getInstance()->popStyle();
+    canvas->popStyle();
 }
 
-void size(int width, int height, enum Renderer renderer)
+void size(int w, int h, enum Renderer r)
 {
-    ProcessingPrivate::getInstance()->size(width, height, renderer);
+    if (w < P_WIDTH_MINIMUM)
+        w = P_WIDTH_MINIMUM;
+    if (h < P_HEIGHT_MINIMUM)
+        h = P_HEIGHT_MINIMUM;
+    width = w;
+    height = h;
+    renderer = r;
 }
 
 void setFrameRate(int fps)
 {
-    ProcessingPrivate::getInstance()->setFrameRate(fps);
+    if (frameRate < P_FRAMERATE_MINIMUM)
+        frameRate = P_FRAMERATE_DEFAULT;
+    frameRate = fps;
 }
 
 void arc(float a, float b, float c, float d, float start, float stop, ArcMode mode)
 {
-    ProcessingPrivate::getInstance()->arc(a, b, c, d, start, stop, mode);
+    canvas->arc(a, b, c, d, start, stop, mode);
 }
 
 void ellipse(float a, float b, float c, float d)
 {
-    ProcessingPrivate::getInstance()->ellipse(a, b, c, d);
+    canvas->ellipse(a, b, c, d);
 }
 
 void line(float x1, float y1, float x2, float y2)
 {
-    ProcessingPrivate::getInstance()->line(x1, y1, x2, y2);
+    canvas->line(x1, y1, x2, y2);
 }
 
 void point(float x, float y)
 {
-    ProcessingPrivate::getInstance()->point(x, y);
+    canvas->point(x, y);
 }
 
 void quad(float x1, float y1, float x2, float y2, float x3, float y3, float x4, float y4)
 {
-    ProcessingPrivate::getInstance()->quad(x1, y1, x2, y2, x3, y3, x4, y4);
+    canvas->quad(x1, y1, x2, y2, x3, y3, x4, y4);
 }
 
 void rect(float a, float b, float c, float d)
 {
-    ProcessingPrivate::getInstance()->rect(a, b, c, d);
+    canvas->rect(a, b, c, d);
 }
 
 void rect(float a, float b, float c, float d, float r)
 {
-    ProcessingPrivate::getInstance()->rect(a, b, c, d, r);
+    canvas->rect(a, b, c, d, r);
 }
 
 void rect(float a, float b, float c, float d, float tl, float tr, float br, float bl)
 {
-    ProcessingPrivate::getInstance()->rect(a, b, c, d, tl, tr, br, bl);
+    canvas->rect(a, b, c, d, tl, tr, br, bl);
 }
 
 void triangle(float x1, float y1, float x2, float y2, float x3, float y3)
 {
-    ProcessingPrivate::getInstance()->triangle(x1, y1, x2, y2, x3, y3);
+    canvas->triangle(x1, y1, x2, y2, x3, y3);
 }
 
 void background(color c)
 {
-    ProcessingPrivate::getInstance()->background(red(c), green(c), blue(c), alpha(c));
+    canvas->background(red(c), green(c), blue(c), alpha(c));
 }
 
 void background(int rgb)
 {
-    ProcessingPrivate::getInstance()->background(rgb);
+    canvas->background(rgb);
 }
 
 void background(int v1, int v2, int v3, int alpha)
 {
-    ProcessingPrivate::getInstance()->background(v1, v2, v3, alpha);
+    canvas->background(v1, v2, v3, alpha);
 }
 
 void colorMode(ColorMode mode)
 {
-    ProcessingPrivate::getInstance()->colorMode(mode);
+    // canvas->colorMode(mode);
 }
 
 void fill(color c)
 {
-    ProcessingPrivate::getInstance()->fill(red(c), green(c), blue(c), alpha(c));
+    canvas->fill(red(c), green(c), blue(c), alpha(c));
 }
 
 void fill(int gray, int alpha)
 {
-    ProcessingPrivate::getInstance()->fill(gray, alpha);
+    canvas->fill(gray, alpha);
 }
 
 void fill(int v1, int v2, int v3, int alpha)
 {
-    ProcessingPrivate::getInstance()->fill(v1, v2, v3, alpha);
+    canvas->fill(v1, v2, v3, alpha);
 }
 
 void noFill()
 {
-    ProcessingPrivate::getInstance()->noFill();
+    canvas->noFill();
 }
 
 void stroke(color c)
 {
-    ProcessingPrivate::getInstance()->stroke(red(c), green(c), blue(c), alpha(c));
+    canvas->stroke(red(c), green(c), blue(c), alpha(c));
 }
 
 void stroke(int gray, int alpha)
 {
-    ProcessingPrivate::getInstance()->stroke(gray, alpha);
+    canvas->stroke(gray, alpha);
 }
 
 void stroke(int v1, int v2, int v3, int alpha)
 {
-    ProcessingPrivate::getInstance()->stroke(v1, v2, v3, alpha);
+    canvas->stroke(v1, v2, v3, alpha);
 }
 
 void noStroke()
 {
-    ProcessingPrivate::getInstance()->noStroke();
+    canvas->noStroke();
 }
 
 float alpha(color rgb)
 {
-    return (rgb.toInt() & 0x000000FF);
+    return (rgb.toInt() & 0xFF);
 }
 
 float blue(color rgb)
 {
-    return ((rgb.toInt() & 0x0000FF00) >> 8);
+    return ((rgb.toInt() >> 8) & 0xFF);
 }
 
 float brightness(color rgb)
 {
-    return ((rgb.toHsbInt() & 0xFF000000) >> 8);
+    return ((rgb.toHsbInt() >> 8) & 0xFF);
 }
 
 void color::store(int v1, int v2, int v3, int alpha)
 {
-    data = ((v1 & 0xFF) << 24)
-         | ((v2 & 0xFF) << 16)
-         | ((v3 & 0xFF) << 8)
-         | (alpha & 0xFF);
+    data = ((v1 & 0xFF) << 24) | ((v2 & 0xFF) << 16) | ((v3 & 0xFF) << 8) | (alpha & 0xFF);
 }
 
 color::color(int v1, int v2, int v3, int alpha)
@@ -378,36 +277,36 @@ color::color(const char *hex)
     int r, g, b, a = 0xFF;
     switch (i)
     {
-        case 3:
-            r = (d[0] << 4) | d[0];
-            g = (d[1] << 4) | d[1];
-            b = (d[2] << 4) | d[2];
-            break;
-        case 6:
-            r = (d[0] << 4) | d[1];
-            g = (d[2] << 4) | d[3];
-            b = (d[4] << 4) | d[5];
-            break;
-        case 8:
-            r = (d[0] << 4) | d[1];
-            g = (d[2] << 4) | d[3];
-            b = (d[4] << 4) | d[5];
-            a = (d[6] << 4) | d[7];
-            break;
-        default:
-            throw "bad hex notation: only support format: #RGB, #RRGGBB, #RRGGBBAA";
+    case 3:
+        r = (d[0] << 4) | d[0];
+        g = (d[1] << 4) | d[1];
+        b = (d[2] << 4) | d[2];
+        break;
+    case 6:
+        r = (d[0] << 4) | d[1];
+        g = (d[2] << 4) | d[3];
+        b = (d[4] << 4) | d[5];
+        break;
+    case 8:
+        r = (d[0] << 4) | d[1];
+        g = (d[2] << 4) | d[3];
+        b = (d[4] << 4) | d[5];
+        a = (d[6] << 4) | d[7];
+        break;
+    default:
+        throw "bad hex notation: only support format: #RGB, #RRGGBB, #RRGGBBAA";
     }
     store(r, g, b, a);
 }
 
 float green(color rgb)
 {
-    return ((rgb.toInt() & 0x00FF0000) >> 16);
+    return ((rgb.toInt() >> 16) & 0xFF);
 }
 
 float hue(color rgb)
 {
-    return ((rgb.toHsbInt() & 0xFF000000) >> 24);
+    return ((rgb.toHsbInt() >> 24) & 0xFF);
 }
 
 //int lerpColor(int c1, int c2, float amt)
@@ -416,37 +315,37 @@ float hue(color rgb)
 
 float red(color rgb)
 {
-    return ((rgb.toInt() & 0xFF000000) >> 24);
+    return ((rgb.toInt() >> 24) & 0xFF);
 }
 
 float saturation(color rgb)
 {
-    return ((rgb.toHsbInt() & 0x00FF0000) >> 16);
+    return ((rgb.toHsbInt() >> 16) & 0xFF);
 }
 
 void ellipseMode(DrawMode mode)
 {
-    ProcessingPrivate::getInstance()->ellipseMode(mode);
+    canvas->ellipseMode(mode);
 }
 
 void rectMode(DrawMode mode)
 {
-    ProcessingPrivate::getInstance()->rectMode(mode);
+    canvas->rectMode(mode);
 }
 
 void strokeWeight(int weight)
 {
-    ProcessingPrivate::getInstance()->strokeWeight(weight);
+    canvas->strokeWeight(weight);
 }
 
 void rotate(float angle)
 {
-    ProcessingPrivate::getInstance()->rotate(angle);
+    canvas->rotate(angle);
 }
 
 void translate(float x, float y)
 {
-    ProcessingPrivate::getInstance()->translate(x, y);
+    canvas->translate(x, y);
 }
 
 int constrain(int amt, int low, int high)
