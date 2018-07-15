@@ -33,6 +33,7 @@ static QtCanvas *createQtCanvas(enum Renderer renderer, QWidget *parent=0)
             return new QtGLCanvas(parent);
 
         case P3D:
+            throw "P3D is not support yet";
             return new QtGL3DCanvas(parent);
 
         case PDF:

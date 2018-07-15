@@ -39,19 +39,21 @@ int Processing::exec(int argc, char *argv[], PFunctions &callbacks)
     engine = GuiEngine::create(GuiEngine::Qt, argc, argv);
 
     window = engine->createWindow();
-    canvas = window->createCanvas(renderer);
-    canvas->stroke(0);
-    canvas->fill(255);
+    window->setWindowTitle(title);
 
+    canvas = 0;
     if (callbacks["setup"])
         callbacks["setup"]();
-
-    window->setWindowTitle(title);
-    window->setFixedSize(width, height);
-    canvas = window->replaceCanvas(renderer);
-    canvas->setFixedSize(width, height);
+    if (!canvas)
+    {
+        // for size() not being called
+        window->setFixedSize(width, height);
+        canvas = window->createCanvas(renderer);
+        canvas->setFixedSize(width, height);
+    }
+    canvas->stroke(0);
+    canvas->fill(255);
     canvas->registerCallbacks(callbacks);
-    canvas->setAllElementsPersistent();
     window->show();
     window->start(frameRate);
 
@@ -94,13 +96,20 @@ void popStyle()
 
 void size(int w, int h, enum Renderer r)
 {
-    if (w < P_WIDTH_MINIMUM)
-        w = P_WIDTH_MINIMUM;
-    if (h < P_HEIGHT_MINIMUM)
-        h = P_HEIGHT_MINIMUM;
-    width = w;
-    height = h;
-    renderer = r;
+    if (!canvas)
+    {
+        if (w < P_WIDTH_MINIMUM)
+            w = P_WIDTH_MINIMUM;
+        if (h < P_HEIGHT_MINIMUM)
+            h = P_HEIGHT_MINIMUM;
+        width = w;
+        height = h;
+        renderer = r;
+        // for drawings in setup()
+        window->setFixedSize(width, height);
+        canvas = window->createCanvas(renderer);
+        canvas->setFixedSize(width, height);
+    }
 }
 
 void setFrameRate(int fps)

@@ -9,7 +9,7 @@
 
 PROCESSING_BEGIN_NAMESPACE
 
-class QtGLWidget : public QOPENGLWIDGET
+class QtGLWidget : public QWidget // QOPENGLWIDGET
 {
     Q_OBJECT
 
@@ -21,7 +21,7 @@ public slots:
     void animate();
 
 protected:
-    void paintEvent(QPaintEvent *event) OVERRIDE;
+    void paintEvent(QPaintEvent *event) Q_DECL_OVERRIDE;
 
 private:
     friend class QtGLCanvas;
@@ -37,9 +37,6 @@ public:
 
     void setFixedSize(int width, int height) OVERRIDE;
     void animate() OVERRIDE;
-
-protected:
-    void paintEvent(QPaintEvent *event) OVERRIDE;
 
 private:
     QtGLWidget *widget;

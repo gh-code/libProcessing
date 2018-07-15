@@ -23,24 +23,58 @@ extern bool iskeyPressed;
 extern int keyCode;
 extern char key;
 
-/**
- * QtCanvas class
- */
-QtCanvas::QtCanvas(QWidget *parent)
-    : Canvas(), QWidget(parent)
+class QtBuffer : public IQtBuffer
 {
-    style.ellipse_mode = CENTER;
-    style.rect_mode = CORNER;
+public:
+    QtBuffer(int width, int height);
+    virtual ~QtBuffer();
+    virtual QPainter & getPainter();
+    virtual QImage & getImage();
+    virtual QRect rect() const;
+
+protected:
+    QPainter painter;
+    QImage *image;
+    bool painting;
+};
+
+QtBuffer::QtBuffer(int width, int height)
+    : image(new QImage(width, height, QImage::Format_ARGB32_Premultiplied)),
+      painting(false)
+{
 }
 
-QtCanvas::~QtCanvas()
+QtBuffer::~QtBuffer()
 {
+    if (painting)
+        painter.end();
+    delete image;
 }
 
-void QtCanvas::animate()
+QPainter & QtBuffer::getPainter()
 {
-    Canvas::animate();
-    update();
+    if (!painting)
+    {
+        painter.begin(image);
+        painter.setRenderHint(QPainter::Antialiasing);
+        painting = true;
+    }
+    return painter;
+}
+
+QImage & QtBuffer::getImage()
+{
+    if (painting)
+    {
+        painter.end();
+        painting = false;
+    }
+    return *image;
+}
+
+QRect QtBuffer::rect() const
+{
+    return image->rect();
 }
 
 static QRectF getRect(DrawMode mode, float a, float b, float c, float d)
@@ -79,257 +113,269 @@ static QRectF getRect(DrawMode mode, float a, float b, float c, float d)
     return bbox;
 }
 
-void QtCanvas::paint(QPainter *painter, QPaintEvent *event)
+/**
+ * QtCanvas class
+ */
+QtCanvas::QtCanvas(QWidget *parent)
+    : Canvas(), QWidget(parent), buffer(0)
 {
-    for (std::list<PElement *>::const_iterator it = draw_queue.cbegin();
-            it != draw_queue.cend(); ++it)
+    style.ellipse_mode = CENTER;
+    style.rect_mode = CORNER;
+}
+
+QtCanvas::~QtCanvas()
+{
+    if (buffer)
+        delete buffer;
+}
+
+void QtCanvas::pushStyle()
+{
+    style_stack.push(style);
+    buffer->getPainter().save();
+}
+
+void QtCanvas::popStyle()
+{
+    buffer->getPainter().restore();
+    style = style_stack.pop();
+}
+
+void QtCanvas::arc(float a, float b, float c, float d, float start, float stop, ArcMode mode)
+{
+    float x = a - 0.5 * c;
+    float y = b - 0.5 * d;
+    start *= -2880.0 / M_PI;
+    stop *= -2880.0 / M_PI - start;
+    switch (mode)
     {
-        PElement *e = (*it);
-        switch (e->type())
+    case OPEN_PIE:
+        buffer->getPainter().setPen(Qt::NoPen);
+        buffer->getPainter().drawPie(x, y, c, d, start, stop);
+        buffer->getPainter().setPen(style.pen);
+        buffer->getPainter().drawArc(x, y, c, d, start, stop);
+        break;
+
+    case PIE:
+        buffer->getPainter().drawPie(x, y, c, d, start, stop);
+        break;
+
+    case OPEN:
+        buffer->getPainter().setPen(Qt::NoPen);
+        buffer->getPainter().drawChord(x, y, c, d, start, stop);
+        buffer->getPainter().setPen(style.pen);
+        buffer->getPainter().drawArc(x, y, c, d, start, stop);
+        break;
+
+    case CHORD:
+        buffer->getPainter().drawChord(x, y, c, d, start, stop);
+        break;
+    }
+}
+
+void QtCanvas::ellipse(float a, float b, float c, float d)
+{
+    switch (style.ellipse_mode)
+    {
+        case RADIUS:
         {
-            case PElement::None:
-                break;
-
-            case PElement::PushStyle:
-            {
-                style_stack.push(style);
-                painter->save();
-                break;
-            }
-            case PElement::PopStyle:
-            {
-                painter->restore();
-                style = style_stack.pop();
-                break;
-            }
-            case PElement::Arc:
-            {
-                PArc *a = (PArc *) e;
-                float x = a->a() - 0.5 * a->c();
-                float y = a->b() - 0.5 * a->d();
-                float start = a->start() * -2880.0 / M_PI;
-                float stop = a->stop() * -2880.0 / M_PI - start;
-                switch (a->mode())
-                {
-                    case OPEN_PIE:
-                        painter->setPen(Qt::NoPen);
-                        painter->drawPie(x, y, a->c(), a->d(), start, stop);
-                        painter->setPen(style.pen);
-                        painter->drawArc(x, y, a->c(), a->d(), start, stop);
-                        break;
-
-                    case PIE:
-                        painter->drawPie(x, y, a->c(), a->d(), start, stop);
-                        break;
-
-                    case OPEN:
-                        painter->setPen(Qt::NoPen);
-                        painter->drawChord(x, y, a->c(), a->d(), start, stop);
-                        painter->setPen(style.pen);
-                        painter->drawArc(x, y, a->c(), a->d(), start, stop);
-                        break;
-
-                    case CHORD:
-                        painter->drawChord(x, y, a->c(), a->d(), start, stop);
-                        break;
-                }
-                break;
-            }
-            case PElement::Ellipse:
-            {
-                PEllipse *el = (PEllipse *) e;
-                switch (style.ellipse_mode)
-                {
-                    case RADIUS:
-                    {
-                        QPointF center(el->a(), el->b());
-                        painter->drawEllipse(center, el->c(), el->d());
-                        break;
-                    }
-                    case CENTER:
-                    {
-                        QPointF center(el->a(), el->b());
-                        painter->drawEllipse(center, 0.5 * el->c(), 0.5 * el->d());
-                        break;
-                    }
-                    case CORNER:
-                    {
-                        painter->drawEllipse(el->a(), el->b(), el->c(), el->d());
-                        break;
-                    }
-                    case CORNERS:
-                    {
-                        QPointF tl(el->a(), el->b());
-                        QPointF br(el->c(), el->d());
-                        QRectF bbox(tl, br);
-                        painter->drawEllipse(bbox);
-                        break;
-                    }
-                }
-                break;
-            }
-            case PElement::Line:
-            {
-                PLine *l = (PLine *) e;
-                painter->drawLine(l->x1(), l->y1(), l->x2(), l->y2());
-                break;
-            }
-            case PElement::Point:
-            {
-                PPoint *p = (PPoint *) e;
-                painter->drawPoint(p->x(), p->y());
-                break;
-            }
-            case PElement::Quad:
-            {
-                PQuad *q = (PQuad *) e;
-                QPolygon polygon;
-                polygon << QPoint(q->x1(), q->y1())
-                        << QPoint(q->x2(), q->y2())
-                        << QPoint(q->x3(), q->y3())
-                        << QPoint(q->x4(), q->y4());
-                painter->drawPolygon(polygon);
-                break;
-            }
-            case PElement::Rect:
-            {
-                PRect *r = (PRect *) e;
-                QRectF bbox = getRect(style.rect_mode, r->a(), r->b(), r->c(), r->d());
-                painter->drawRect(bbox);
-                break;
-            }
-            case PElement::RoundedRect:
-            {
-                PRoundedRect *r = (PRoundedRect *)e;
-                QRectF bbox = getRect(style.rect_mode, r->a(), r->b(), r->c(), r->d());
-                painter->drawRoundedRect(bbox, r->r(), r->r());
-                break;
-            }
-            case PElement::RoundedRectC4:
-            {
-                PRoundedRectC4 *r = (PRoundedRectC4 *)e;
-                QRectF bbox = getRect(style.rect_mode, r->a(), r->b(), r->c(), r->d());
-                QPainterPath path;
-                float x = bbox.x();
-                float y = bbox.y();
-                float w = bbox.width();
-                float h = bbox.height();
-                float hw = 0.5 * w;
-                float hh = 0.5 * h;
-                path.setFillRule(Qt::WindingFill);
-                path.addRoundedRect(x,      y     , hw, hh, r->tl(), r->tl());
-                path.addRoundedRect(x + hw, y     , hw, hh, r->tr(), r->tr());
-                path.addRoundedRect(x + hw, y + hw, hw, hh, r->br(), r->br());
-                path.addRoundedRect(x,      y + hw, hw, hh, r->bl(), r->bl());
-                path.addRect(x + hw - r->tl(), y, r->tl(), r->tl());
-                path.addRect(x, y + hh - r->tl(), r->tl(), r->tl());
-                path.addRect(x + hw - r->tl(), y + hh - r->tl(), r->tl(), r->tl());
-                path.addRect(x + hw, y, r->tr(), r->tr());
-                path.addRect(x + hw, y + hh - r->tr(), r->tr(), r->tr());
-                path.addRect(x + w - r->tr(), y + hh - r->tr(), r->tr(), r->tr());
-                path.addRect(x + hw, y + hh, r->br(), r->br());
-                path.addRect(x + h - r->br(), y + hh, r->br(), r->br());
-                path.addRect(x + hw, y + h - r->br(), r->br(), r->br());
-                path.addRect(x, y + hh, r->bl(), r->bl());
-                path.addRect(x + hw - r->bl(), y + hh, r->bl(), r->bl());
-                path.addRect(x + hw - r->bl(), y + h - r->bl(), r->bl(), r->bl());
-                painter->drawPath(path.simplified());
-                break;
-            }
-            case PElement::Triangle:
-            {
-                PTriangle *t = (PTriangle *) e;
-                QPolygon polygon;
-                polygon << QPoint(t->x1(), t->y1())
-                        << QPoint(t->x2(), t->y2())
-                        << QPoint(t->x3(), t->y3());
-                painter->drawPolygon(polygon);
-                break;
-            }
-            case PElement::Background:
-            {
-                PBackground *b = (PBackground *) e;
-                QColor c = QColor::fromRgb(b->v1(), b->v2(), b->v3(), b->alpha());
-                QBrush background(c);
-                painter->fillRect(event->rect(), background);
-                break;
-            }
-            case PElement::Fill:
-            {
-                PFill *f = (PFill *) e;
-                QColor c = QColor::fromRgb(f->v1(), f->v2(), f->v3(), f->alpha());
-                style.brush = QBrush(c);
-                painter->setBrush(style.brush);
-                break;
-            }
-            case PElement::NoFill:
-            {
-                painter->setBrush(Qt::NoBrush);
-                break;
-            }
-            case PElement::Stroke:
-            {
-                PStroke *s = (PStroke *) e;
-                QColor c = QColor::fromRgb(s->v1(), s->v2(), s->v3(), s->alpha());
-                int width = style.pen.width();
-                style.pen = QPen(c);
-                style.pen.setWidth(width);
-                style.pen.setCapStyle(Qt::RoundCap);
-                painter->setPen(style.pen);
-                break;
-            }
-            case PElement::NoStroke:
-            {
-                painter->setPen(Qt::NoPen);
-                break;
-            }
-            case PElement::EllipseMode:
-            {
-                PEllipseMode *em = (PEllipseMode *) e;
-                style.ellipse_mode = em->mode();
-                break;
-            }
-            case PElement::RectMode:
-            {
-                PRectMode *rm = (PRectMode *) e;
-                style.rect_mode = rm->mode();
-                break;
-            }
-            case PElement::StrokeWeight:
-            {
-                PStrokeWeight *sw = (PStrokeWeight *) e;
-                style.pen.setWidth(sw->weight());
-                painter->setPen(style.pen);
-                break;
-            }
-            case PElement::Rotate:
-            {
-                PRotate *r = (PRotate *) e;
-                painter->rotate(r->angle() * 180.0 / M_PI);
-                break;
-            }
-            case PElement::Translate:
-            {
-                PTranslate *t = (PTranslate *) e;
-                painter->translate(t->x(), t->y());
-                break;
-            }
+            QPointF center(a, b);
+            buffer->getPainter().drawEllipse(center, c, d);
+            break;
+        }
+        case CENTER:
+        {
+            QPointF center(a, b);
+            buffer->getPainter().drawEllipse(center, 0.5 * c, 0.5 * d);
+            break;
+        }
+        case CORNER:
+        {
+            buffer->getPainter().drawEllipse(a, b, c, d);
+            break;
+        }
+        case CORNERS:
+        {
+            QPointF tl(a, b);
+            QPointF br(c, d);
+            QRectF bbox(tl, br);
+            buffer->getPainter().drawEllipse(bbox);
+            break;
         }
     }
+}
+
+void QtCanvas::line(float x1, float y1, float x2, float y2)
+{
+    buffer->getPainter().drawLine(x1, y1, x2, y2);
+}
+
+void QtCanvas::point(float x, float y)
+{
+    buffer->getPainter().drawPoint(x, y);
+}
+
+void QtCanvas::quad(float x1, float y1, float x2, float y2, float x3, float y3, float x4, float y4)
+{
+    QPolygon polygon;
+    polygon << QPoint(x1, y1)
+            << QPoint(x2, y2)
+            << QPoint(x3, y3)
+            << QPoint(x4, y4);
+    buffer->getPainter().drawPolygon(polygon);
+}
+
+void QtCanvas::rect(float a, float b, float c, float d)
+{
+    QRectF bbox = getRect(style.rect_mode, a, b, c, d);
+    buffer->getPainter().drawRect(bbox);
+}
+
+void QtCanvas::rect(float a, float b, float c, float d, float r)
+{
+    QRectF bbox = getRect(style.rect_mode, a, b, c, d);
+    buffer->getPainter().drawRoundedRect(bbox, r, r);
+}
+
+void QtCanvas::rect(float a, float b, float c, float d, float tl, float tr, float br, float bl)
+{
+    QRectF bbox = getRect(style.rect_mode, a, b, c, d);
+    QPainterPath path;
+    float x = bbox.x();
+    float y = bbox.y();
+    float w = bbox.width();
+    float h = bbox.height();
+    float hw = 0.5 * w;
+    float hh = 0.5 * h;
+    path.setFillRule(Qt::WindingFill);
+    path.addRoundedRect(x, y, hw, hh, tl, tl);
+    path.addRoundedRect(x + hw, y, hw, hh, tr, tr);
+    path.addRoundedRect(x + hw, y + hw, hw, hh, br, br);
+    path.addRoundedRect(x, y + hw, hw, hh, bl, bl);
+    path.addRect(x + hw - tl, y, tl, tl);
+    path.addRect(x, y + hh - tl, tl, tl);
+    path.addRect(x + hw - tl, y + hh - tl, tl, tl);
+    path.addRect(x + hw, y, tr, tr);
+    path.addRect(x + hw, y + hh - tr, tr, tr);
+    path.addRect(x + w - tr, y + hh - tr, tr, tr);
+    path.addRect(x + hw, y + hh, br, br);
+    path.addRect(x + h - br, y + hh, br, br);
+    path.addRect(x + hw, y + h - br, br, br);
+    path.addRect(x, y + hh, bl, bl);
+    path.addRect(x + hw - bl, y + hh, bl, bl);
+    path.addRect(x + hw - bl, y + h - bl, bl, bl);
+    buffer->getPainter().drawPath(path.simplified());
+}
+
+void QtCanvas::triangle(float x1, float y1, float x2, float y2, float x3, float y3)
+{
+    QPolygon polygon;
+    polygon << QPoint(x1, y1)
+            << QPoint(x2, y2)
+            << QPoint(x3, y3);
+    buffer->getPainter().drawPolygon(polygon);
+}
+
+void QtCanvas::background(int rgb)
+{
+    background(rgb, rgb, rgb);
+}
+
+void QtCanvas::background(int v1, int v2, int v3, int alpha)
+{
+    QColor c = QColor::fromRgb(v1, v2, v3, alpha);
+    QBrush background(c);
+    buffer->getPainter().fillRect(buffer->rect(), background);
+}
+
+void QtCanvas::fill(int gray, int alpha)
+{
+    fill(gray, gray, gray, alpha);
+}
+
+void QtCanvas::fill(int v1, int v2, int v3, int alpha)
+{
+    QColor c = QColor::fromRgb(v1, v2, v3, alpha);
+    style.brush = QBrush(c);
+    buffer->getPainter().setBrush(style.brush);
+}
+
+void QtCanvas::noFill()
+{
+    buffer->getPainter().setBrush(Qt::NoBrush);
+}
+
+void QtCanvas::stroke(int gray, int alpha)
+{
+    stroke(gray, gray, gray, alpha);
+}
+
+void QtCanvas::stroke(int v1, int v2, int v3, int alpha)
+{
+    QColor c = QColor::fromRgb(v1, v2, v3, alpha);
+    int width = style.pen.width();
+    style.pen = QPen(c);
+    style.pen.setWidth(width);
+    style.pen.setCapStyle(Qt::RoundCap);
+    buffer->getPainter().setPen(style.pen);
+}
+
+void QtCanvas::noStroke()
+{
+    buffer->getPainter().setPen(Qt::NoPen);
+}
+
+void QtCanvas::ellipseMode(DrawMode mode)
+{
+    style.ellipse_mode = mode;
+}
+
+void QtCanvas::rectMode(DrawMode mode)
+{
+    style.rect_mode = mode;
+}
+
+void QtCanvas::strokeWeight(int weight)
+{
+    style.pen.setWidth(weight);
+    buffer->getPainter().setPen(style.pen);
+}
+
+void QtCanvas::rotate(float angle)
+{
+    buffer->getPainter().rotate(angle * 180.0 / M_PI);
+}
+
+void QtCanvas::translate(float x, float y)
+{
+    buffer->getPainter().translate(x, y);
+}
+
+void QtCanvas::animate()
+{
+    Canvas::animate();
+    update();
+}
+
+IQtBuffer * QtCanvas::getBuffer()
+{
+    return buffer;
 }
 
 void QtCanvas::paintEvent(QPaintEvent *event)
 {
     QPainter painter;
+    QRect dirtyRect = event->rect();
     painter.begin(this);
     painter.setRenderHint(QPainter::Antialiasing);
-    paint(&painter, event);
+    painter.drawImage(dirtyRect, buffer->getImage(), dirtyRect);
     painter.end();
 }
 
 void QtCanvas::setFixedSize(int w, int h)
 {
     QWidget::setFixedSize(w, h);
+    buffer = new QtBuffer(w, h);
 }
 
 void QtCanvas::mousePressEvent(QMouseEvent *event)
