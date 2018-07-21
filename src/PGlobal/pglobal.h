@@ -43,10 +43,24 @@
     PB(keyReleased) \
     PB(keyTyped)
 
-#ifndef DETECTCXX0X
-#define OVERRIDE
+#ifndef __has_feature      // Optional of course.
+#define __has_feature(x) 0 // Compatibility with non-clang compilers.
+#endif
+
+#if __cplusplus >= 201103L || defined(__GXX_EXPERIMENTAL_CXX0X__)
+# define P_COMPILER_EXPLICIT_OVERRIDES
+#endif
+
+#ifdef P_COMPILER_EXPLICIT_OVERRIDES
+# define OVERRIDE override
+# define FINAL final
 #else
-#define OVERRIDE override
+# ifndef OVERRIDE
+#  define OVERRIDE
+# endif
+# ifndef FINAL
+#  define FINAL
+# endif
 #endif
 
 PROCESSING_BEGIN_NAMESPACE 

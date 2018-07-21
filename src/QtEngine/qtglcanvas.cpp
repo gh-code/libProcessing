@@ -23,12 +23,13 @@ public:
     QRect rect() const OVERRIDE;
 
 private:
-    QRect drawRect;
+    QSurfaceFormat format;
     QWindow window;
     QOpenGLContext context;
     QOpenGLFramebufferObjectFormat fbo_format;
     QOpenGLFramebufferObject *fbo;
     QOpenGLPaintDevice *device;
+    QRect drawRect;
     QPainter painter;
     QImage image;
     bool painting;
@@ -37,11 +38,16 @@ private:
 QtGLBuffer::QtGLBuffer(int width, int height)
     : painting(false)
 {
+    // format.setMajorVersion(3);
+    // format.setMinorVersion(2);
+
     window.setSurfaceType(QWindow::OpenGLSurface);
+    window.setFormat(format);
     window.create();
 
+    context.setFormat(format);
     if (!context.create())
-        qFatal("Cannot create the requested OpenGL context!");
+        qFatal("Error: cannot create the requested OpenGL context!");
     context.makeCurrent(&window);
 
     drawRect = QRect(0, 0, width, height);
@@ -79,7 +85,7 @@ QPainter & QtGLBuffer::getPainter()
 
 QImage & QtGLBuffer::getImage()
 {
-    if (fbo->isBound())
+    if (painting)
     {
         painter.end();
         fbo->release();
@@ -117,7 +123,7 @@ void QtGLWidget::paintEvent(QPaintEvent *event)
     QPainter painter;
     QRect dirtyRect = event->rect();
     painter.begin(this);
-    painter.setRenderHint(QPainter::Antialiasing);
+    painter.setRenderHints(QPainter::Antialiasing | QPainter::HighQualityAntialiasing);
     QImage & image = helper->getBuffer()->getImage();
     painter.drawImage(dirtyRect, image, dirtyRect);
     painter.end();
