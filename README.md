@@ -32,11 +32,11 @@ WARNING: I have a real job so I can only spend a little time on this project. Th
 * draw()
 * exit()
 * false
-* final (C++ 11)
+* final (C++ 11 and above)
 * loop()
 * new
 * noLoop()
-* nullptr (C++ 11)
+* nullptr (C++ 11 and above)
 * popStyle()
 * private
 * public
@@ -59,7 +59,7 @@ WARNING: I have a real job so I can only spend a little time on this project. Th
 
 ### Data
 #### Primitive
-* bool
+* boolean
 * byte
 * char
 * color
@@ -215,7 +215,6 @@ WARNING: I have a real job so I can only spend a little time on this project. Th
 
 #### Random
 * random()
-* randomGaussian()
 * randomSeed()
 
 ### Constants 

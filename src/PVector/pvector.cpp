@@ -116,7 +116,7 @@ PVector2D::PVector2D(float x, float y)
     : m_x(x), m_y(y)
 {
     ref = 1;
-    verbose = 0;
+    verbose = 1;
 }
 
 float PVector2D::dot(float x, float y, float z) const
@@ -326,19 +326,19 @@ void PVector3D::lerp(float x, float y, float z, float amt)
 PVector::PVector()
 {
     impl = 0;
-    verbose = 0;
+    verbose = 1;
 }
 
 PVector::PVector(float x, float y, float z)
 {
     impl = new PVector3D(x, y, z);
-    verbose = 0;
+    verbose = 1;
 }
 
 PVector::PVector(float x, float y)
 {
     impl = new PVector2D(x, y);
-    verbose = 0;
+    verbose = 1;
 }
 
 PVector::PVector(const PVector &v)
@@ -542,8 +542,8 @@ std::vector<float> PVector::array() const
 
 PVector & PVector::to2D()
 {
-    // if (z())
-    //     std::cerr << "z is truncated\n";
+    if (verbose && z())
+        std::cerr << "z is threw away\n";
     PVector temp(x(), y());
     (*this) = temp;
     return (*this);
@@ -805,8 +805,8 @@ PVector & PVector::lerp(const PVector &v, float amt)
 void PVector::dontWarn()
 {
     if (impl)
-        impl->verbose = 1;
-    verbose = 1;
+        impl->verbose = 0;
+    verbose = 0;
 }
 
 PVector PVector::random2D()

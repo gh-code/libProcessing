@@ -30,12 +30,9 @@ public:
     color(int v1, int v2, int v3, int alpha);
     color(const char *hex);
     int toInt() { return data; }
-    int toHsbInt() { return dataHsb; }
 
 private:
-    void store(int, int, int, int);
     int data;
-    int dataHsb;
 };
 
 class Processing

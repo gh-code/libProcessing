@@ -599,6 +599,7 @@ enum ColorMode
 
 typedef void (*PCALLBACK)();
 typedef std::map<std::string,PCALLBACK> PFunctions;
+typedef bool boolean;
 
 PROCESSING_END_NAMESPACE 
 

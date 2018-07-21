@@ -246,17 +246,17 @@ float blue(color rgb)
 
 float brightness(color rgb)
 {
-    return ((rgb.toHsbInt() >> 8) & 0xFF);
+    return ((rgb.toInt() >> 8) & 0xFF);
 }
 
-void color::store(int v1, int v2, int v3, int alpha)
+static int color_to_data(int v1, int v2, int v3, int alpha)
 {
-    data = ((v1 & 0xFF) << 24) | ((v2 & 0xFF) << 16) | ((v3 & 0xFF) << 8) | (alpha & 0xFF);
+    return ((v1 & 0xFF) << 24) | ((v2 & 0xFF) << 16) | ((v3 & 0xFF) << 8) | (alpha & 0xFF);
 }
 
 color::color(int v1, int v2, int v3, int alpha)
 {
-    store(v1, v2, v3, alpha);
+    data = color_to_data(v1, v2, v3, alpha);
 }
 
 static bool is_digit(char c)
@@ -315,7 +315,7 @@ color::color(const char *hex)
     default:
         throw "bad hex notation: only support format: #RGB, #RRGGBB, #RRGGBBAA";
     }
-    store(r, g, b, a);
+    data = color_to_data(r, g, b, a);
 }
 
 float green(color rgb)
@@ -325,7 +325,7 @@ float green(color rgb)
 
 float hue(color rgb)
 {
-    return ((rgb.toHsbInt() >> 24) & 0xFF);
+    return ((rgb.toInt() >> 24) & 0xFF);
 }
 
 //int lerpColor(int c1, int c2, float amt)
@@ -339,7 +339,7 @@ float red(color rgb)
 
 float saturation(color rgb)
 {
-    return ((rgb.toHsbInt() >> 16) & 0xFF);
+    return ((rgb.toInt() >> 16) & 0xFF);
 }
 
 void ellipseMode(DrawMode mode)
