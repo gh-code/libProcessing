@@ -81,6 +81,8 @@ void background(color);
 void background(int);
 void background(int v1, int v2, int v3, int alpha=255);
 void colorMode(ColorMode mode);
+void colorMode(ColorMode mode, float max);
+void colorMode(ColorMode mode, float max1, float max2, float max3, float maxA=255);
 void fill(color c);
 void fill(int gray, int alpha=255);
 void fill(int v1, int v2, int v3, int alpha=255);

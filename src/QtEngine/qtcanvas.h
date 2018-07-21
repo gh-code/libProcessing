@@ -31,6 +31,7 @@ struct StyleData
     QPen pen;
     DrawMode ellipse_mode;
     DrawMode rect_mode;
+    ColorMode color_mode;
 };
 
 class QtCanvas : public Canvas, public QWidget
@@ -54,6 +55,8 @@ public:
     virtual void rect(float a, float b, float c, float d, float tl, float tr, float br, float bl) OVERRIDE;
     virtual void triangle(float x1, float y1, float x2, float y2, float x3, float y3) OVERRIDE;
 
+    virtual void colorMode(ColorMode mode) OVERRIDE;
+    virtual void colorMode(ColorMode mode, float max1, float max2, float max3, float maxA) OVERRIDE;
     virtual void background(int rgb) OVERRIDE;
     virtual void background(int v1, int v2, int v3, int alpha = 255) OVERRIDE;
     virtual void fill(int gray, int alpha = 255) OVERRIDE;
@@ -90,6 +93,10 @@ protected:
     QStack<StyleData> style_stack;
     StyleData style;
     IQtBuffer *buffer;
+    float max1;
+    float max2;
+    float max3;
+    float maxA;
 };
 
 PROCESSING_END_NAMESPACE

@@ -121,6 +121,11 @@ QtCanvas::QtCanvas(QWidget *parent)
 {
     style.ellipse_mode = CENTER;
     style.rect_mode = CORNER;
+    style.color_mode = RGB;
+    max1 = 255;
+    max2 = 255;
+    max3 = 255;
+    maxA = 255;
 }
 
 QtCanvas::~QtCanvas()
@@ -276,14 +281,47 @@ void QtCanvas::triangle(float x1, float y1, float x2, float y2, float x3, float 
     buffer->getPainter().drawPolygon(polygon);
 }
 
+void QtCanvas::colorMode(ColorMode mode)
+{
+    style.color_mode = mode;
+}
+
+void QtCanvas::colorMode(ColorMode mode, float max1_, float max2_, float max3_, float maxA_)
+{
+    style.color_mode = mode;
+    max1 = max1_;
+    max2 = max2_;
+    max3 = max3_;
+    maxA = maxA_;
+}
+
 void QtCanvas::background(int rgb)
 {
     background(rgb, rgb, rgb);
 }
 
+static void color_map(int *v1, int *v2, int *v3, int *alpha, float max1, float max2, float max3, float maxA)
+{
+    (*v1) *= 255 / max1;
+    (*v2) *= 255 / max2;
+    (*v3) *= 255 / max3;
+    (*alpha) *= 255 / maxA;
+    if ((*v1) > 255)
+        (*v1) = 255;
+    if ((*v2) > 255)
+        (*v2) = 255;
+    if ((*v3) > 255)
+        (*v3) = 255;
+    if ((*alpha) > 255)
+        (*alpha) = 255;
+}
+
 void QtCanvas::background(int v1, int v2, int v3, int alpha)
 {
-    QColor c = QColor::fromRgb(v1, v2, v3, alpha);
+    color_map(&v1, &v2, &v3, &alpha, max1, max2, max3, maxA);
+    QColor c = (style.color_mode == HSB
+            ? QColor::fromHsv(v1, v2, v3, alpha)
+            : QColor::fromRgb(v1, v2, v3, alpha));
     QBrush background(c);
     buffer->getPainter().fillRect(buffer->rect(), background);
 }
@@ -295,7 +333,10 @@ void QtCanvas::fill(int gray, int alpha)
 
 void QtCanvas::fill(int v1, int v2, int v3, int alpha)
 {
-    QColor c = QColor::fromRgb(v1, v2, v3, alpha);
+    color_map(&v1, &v2, &v3, &alpha, max1, max2, max3, maxA);
+    QColor c = (style.color_mode == HSB
+            ? QColor::fromHsv(v1, v2, v3, alpha)
+            : QColor::fromRgb(v1, v2, v3, alpha));
     style.brush = QBrush(c);
     buffer->getPainter().setBrush(style.brush);
 }
@@ -312,7 +353,10 @@ void QtCanvas::stroke(int gray, int alpha)
 
 void QtCanvas::stroke(int v1, int v2, int v3, int alpha)
 {
-    QColor c = QColor::fromRgb(v1, v2, v3, alpha);
+    color_map(&v1, &v2, &v3, &alpha, max1, max2, max3, maxA);
+    QColor c = (style.color_mode == HSB
+            ? QColor::fromHsv(v1, v2, v3, alpha)
+            : QColor::fromRgb(v1, v2, v3, alpha));
     int width = style.pen.width();
     style.pen = QPen(c);
     style.pen.setWidth(width);

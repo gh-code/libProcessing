@@ -181,7 +181,17 @@ void background(int v1, int v2, int v3, int alpha)
 
 void colorMode(ColorMode mode)
 {
-    // canvas->colorMode(mode);
+    canvas->colorMode(mode);
+}
+
+void colorMode(ColorMode mode, float max)
+{
+    colorMode(mode, max, max, max);
+}
+
+void colorMode(ColorMode mode, float max1, float max2, float max3, float maxA)
+{
+    canvas->colorMode(mode, max1, max2, max3, maxA);
 }
 
 void fill(color c)

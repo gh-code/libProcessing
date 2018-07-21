@@ -163,6 +163,20 @@ void Canvas::triangle(float x1, float y1, float x2, float y2, float x3, float y3
     draw_queue.push_back(new PTriangle(x1, y1, x2, y2, x3, y3));
 }
 
+void Canvas::colorMode(ColorMode mode)
+{
+    (void) mode;
+}
+
+void Canvas::colorMode(ColorMode mode, float max1, float max2, float max3, float maxA)
+{
+    (void) mode;
+    (void) max1;
+    (void) max2;
+    (void) max3;
+    (void) maxA;
+}
+
 void Canvas::background(int rgb)
 {
     background(rgb, rgb, rgb);

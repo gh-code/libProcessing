@@ -45,7 +45,9 @@ public:
     virtual void rect(float a, float b, float c, float d, float r);
     virtual void rect(float a, float b, float c, float d, float tl, float tr, float br, float bl);
     virtual void triangle(float x1, float y1, float x2, float y2, float x3, float y3);
- 
+
+    virtual void colorMode(ColorMode mode);
+    virtual void colorMode(ColorMode mode, float max1, float max2, float max3, float maxA);
     virtual void background(int rgb);
     virtual void background(int v1, int v2, int v3, int alpha=255);
     virtual void fill(int gray, int alpha=255);

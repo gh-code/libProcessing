@@ -144,6 +144,7 @@ WARNING: I have a real job so I can only spend a little time on this project. Th
 ### Color
 #### Setting
 * background()
+* colorMode()
 * fill()
 * noFill()
 * noStroke()
