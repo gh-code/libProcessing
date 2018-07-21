@@ -21,18 +21,35 @@ PROCESSING_BEGIN_NAMESPACE
 
 typedef char byte;
 
+typedef struct color_data_t
+{
+    unsigned alpha : 8,
+        v1 : 8,
+        v2 : 8,
+        v3 : 8;
+}
+color_t;
+
 class color
 {
 public:
+    color() : color(0) {}
     color(int gray) : color(gray, gray, gray, 0xFF) {}
     color(int gray, int alpha) : color(gray, gray, gray, alpha) {}
     color(int v1, int v2, int v3) : color(v1, v2, v3, 0xFF) {}
     color(int v1, int v2, int v3, int alpha);
     color(const char *hex);
-    int toInt() { return data; }
 
 private:
-    int data;
+    friend float red(color);
+    friend float green(color);
+    friend float blue(color);
+    friend float hue(color);
+    friend float saturation(color);
+    friend float brightness(color);
+    friend float alpha(color);
+
+    color_t data;
 };
 
 class Processing

@@ -236,27 +236,25 @@ void noStroke()
 
 float alpha(color rgb)
 {
-    return (rgb.toInt() & 0xFF);
+    return rgb.data.alpha;
 }
 
 float blue(color rgb)
 {
-    return ((rgb.toInt() >> 8) & 0xFF);
+    return rgb.data.v3;
 }
 
 float brightness(color rgb)
 {
-    return ((rgb.toInt() >> 8) & 0xFF);
-}
-
-static int color_to_data(int v1, int v2, int v3, int alpha)
-{
-    return ((v1 & 0xFF) << 24) | ((v2 & 0xFF) << 16) | ((v3 & 0xFF) << 8) | (alpha & 0xFF);
+    return rgb.data.v3;
 }
 
 color::color(int v1, int v2, int v3, int alpha)
 {
-    data = color_to_data(v1, v2, v3, alpha);
+    data.v1 = v1;
+    data.v2 = v2;
+    data.v3 = v3;
+    data.alpha = alpha;
 }
 
 static bool is_digit(char c)
@@ -293,39 +291,42 @@ color::color(const char *hex)
     if (tmp[i] != '\0')
         throw "bad hex notation";
 
-    int r, g, b, a = 0xFF;
+    int v1, v2, v3, alpha = 0xFF;
     switch (i)
     {
     case 3:
-        r = (d[0] << 4) | d[0];
-        g = (d[1] << 4) | d[1];
-        b = (d[2] << 4) | d[2];
+        v1 = (d[0] << 4) | d[0];
+        v2 = (d[1] << 4) | d[1];
+        v3 = (d[2] << 4) | d[2];
         break;
     case 6:
-        r = (d[0] << 4) | d[1];
-        g = (d[2] << 4) | d[3];
-        b = (d[4] << 4) | d[5];
+        v1 = (d[0] << 4) | d[1];
+        v2 = (d[2] << 4) | d[3];
+        v3 = (d[4] << 4) | d[5];
         break;
     case 8:
-        r = (d[0] << 4) | d[1];
-        g = (d[2] << 4) | d[3];
-        b = (d[4] << 4) | d[5];
-        a = (d[6] << 4) | d[7];
+        v1 = (d[0] << 4) | d[1];
+        v2 = (d[2] << 4) | d[3];
+        v3 = (d[4] << 4) | d[5];
+        alpha = (d[6] << 4) | d[7];
         break;
     default:
         throw "bad hex notation: only support format: #RGB, #RRGGBB, #RRGGBBAA";
     }
-    data = color_to_data(r, g, b, a);
+    data.v1 = v1;
+    data.v2 = v2;
+    data.v3 = v3;
+    data.alpha = alpha;
 }
 
 float green(color rgb)
 {
-    return ((rgb.toInt() >> 16) & 0xFF);
+    return rgb.data.v2;
 }
 
 float hue(color rgb)
 {
-    return ((rgb.toInt() >> 24) & 0xFF);
+    return rgb.data.v1;
 }
 
 //int lerpColor(int c1, int c2, float amt)
@@ -334,12 +335,12 @@ float hue(color rgb)
 
 float red(color rgb)
 {
-    return ((rgb.toInt() >> 24) & 0xFF);
+    return rgb.data.v1;
 }
 
 float saturation(color rgb)
 {
-    return ((rgb.toInt() >> 16) & 0xFF);
+    return rgb.data.v2;
 }
 
 void ellipseMode(DrawMode mode)
