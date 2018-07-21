@@ -7,5 +7,6 @@
 #define PROCESSING
 
 #include "processing.h"
+#include "pvector.h"
 
 #endif // PROCESSING
